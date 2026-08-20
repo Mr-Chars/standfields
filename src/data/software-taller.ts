@@ -11,7 +11,9 @@ export const hero = {
     'plataforma. Se usa desde el mostrador, el taller y el celular.',
   footnote: 'Sin tarjeta de crédito. Migramos tus datos actuales sin costo.',
   panelCaption: 'Vista del tablero',
-  panelPlaceholder: 'Captura del tablero de Naix',
+  panelAlt:
+    'Tablero de Naix: cobranza vencida, meta de cobro del mes, vehículos en el taller y ' +
+    'la lista de asuntos que conviene atender primero.',
 };
 
 export const problems = [

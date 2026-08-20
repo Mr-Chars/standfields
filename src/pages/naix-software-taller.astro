@@ -4,7 +4,9 @@ import Section from '@/components/ui/Section.astro';
 import Button from '@/components/ui/Button.astro';
 import Icon from '@/components/ui/Icon.astro';
 import Faq from '@/components/ui/Faq.astro';
+import { Image } from 'astro:assets';
 import ImagePlaceholder from '@/components/ui/ImagePlaceholder.astro';
+import dashboardPreview from '@/assets/sass-naix-dashboard-preview.png';
 import PageHero from '@/components/sections/PageHero.astro';
 import CtaSection from '@/components/sections/CtaSection.astro';
 import { ROUTES } from '@/config/routes';
@@ -57,11 +59,13 @@ const path = ROUTES.softwareTaller;
         <span class="panel__dot" aria-hidden="true"></span>
         {hero.panelCaption}
       </figcaption>
-      <ImagePlaceholder
-        label={hero.panelPlaceholder}
-        ratio="16 / 11"
-        tone="dark"
-        class="panel__slot"
+      <Image
+        src={dashboardPreview}
+        alt={hero.panelAlt}
+        widths={[480, 800, 1200]}
+        sizes="(min-width: 760px) 46vw, 92vw"
+        loading="eager"
+        class="panel__shot"
       />
     </figure>
   </PageHero>
@@ -233,9 +237,16 @@ const path = ROUTES.softwareTaller;
     background: var(--navy-200);
   }
 
-  .panel :global(.panel__slot) {
-    border: 0;
-    border-radius: 0;
+  /* La captura es más alta que el hueco del diseño (16/11): se ancla arriba y
+     se recorta por abajo, de modo que siempre se vea la cabecera del tablero
+     con los importes y la lista de pendientes, que es lo que vende la vista. */
+  .panel :global(.panel__shot) {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 11;
+    object-fit: cover;
+    object-position: top center;
   }
 
   .problem-card {
