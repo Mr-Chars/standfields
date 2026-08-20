@@ -12,6 +12,14 @@ export interface CaseStudy {
   title: string;
   text: string;
   placeholder: string;
+  /**
+   * Captura real del caso, si ya existe. La página la busca en su propio mapa de
+   * imágenes: el import vive en el `.astro` para que Astro pueda optimizarla, y
+   * aquí queda sólo la clave. Sin ella se sigue pintando el marcador.
+   */
+  imageKey?: string;
+  /** Texto alternativo de esa captura. Obligatorio si hay `imageKey`. */
+  imageAlt?: string;
   /** Etiquetas cortas de tecnología o sector. */
   tags?: string[];
   /** Cifras destacadas, si el caso las tiene. */
@@ -56,11 +64,15 @@ export const CASES: CaseStudy[] = [
     category: 'software',
     kicker: 'Producto propio · 2025',
     title: 'Naix, software para talleres mecánicos',
-    // TODO: sustituir «[n]» por el número real de talleres.
     text:
-      'Nuestro producto propio, en operación en [n] talleres de Lima. Órdenes de servicio, ' +
-      'control de clientes y base de datos de vehículos.',
+      'Nuestro producto propio, en operación en talleres de Lima. Órdenes de servicio, ' +
+      'control de clientes, base de datos de vehículos y el tablero que dice qué ' +
+      'conviene atender primero.',
     placeholder: 'Captura de Naix',
+    imageKey: 'naix',
+    imageAlt:
+      'Tablero de Naix con la cobranza vencida, la meta de cobro del mes, los vehículos ' +
+      'en el taller y la lista de asuntos ordenada por el importe en juego.',
     link: { label: 'Ver el producto', href: ROUTES.softwareTaller },
     featured: true,
   },

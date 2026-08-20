@@ -22,14 +22,16 @@ import {
 
 const crumbs = [{ label: 'Precios' }];
 const path = ROUTES.precios;
-const planNames = ['Gratis', 'Taller', 'Pro'];
+/* Mismo orden que las columnas de `comparison`. Si se añade un plan, se toca aquí
+   y en el `colspan` de la fila de grupo, que abarca esta cabecera entera. */
+const planNames = ['Gratis', 'Taller', 'Pro', 'Multitaller'];
 ---
 
 <BaseLayout
   active="precios"
   path={path}
   title="Planes y precios"
-  description="Tres planes de suscripción para Naix, desde una versión gratuita, y rangos por proyecto para los servicios de Shopify. Precios en soles, sin permanencia."
+  description="Cuatro planes de suscripción para Naix, desde una versión gratuita hasta Multitaller para cadenas con varias sedes, y rangos por proyecto para los servicios de Shopify. Precios en soles, sin permanencia."
   structuredData={[breadcrumbSchema(crumbs, path), faqSchema(faq)]}
 >
   <PageHero
@@ -75,7 +77,7 @@ const planNames = ['Gratis', 'Taller', 'Pro'];
       <span class="eyebrow">01 — Naix, software para talleres</span>
       <div class="section-head">
         <h2 class="section-title" id="planes-saas" style="max-width: 20ch">
-          Tres planes según el tamaño del taller
+          Cuatro planes según el tamaño del taller
         </h2>
         <div class="billing">
           <div class="billing__switch" role="group" aria-label="Periodicidad de pago">
@@ -157,7 +159,8 @@ const planNames = ['Gratis', 'Taller', 'Pro'];
       <div class="table-scroll" tabindex="0" role="region" aria-labelledby="comparacion">
         <table>
           <caption class="visually-hidden">
-            Comparación de funcionalidades y límites entre los planes Gratis, Taller y Pro
+            Comparación de funcionalidades y límites entre los planes Gratis, Taller, Pro y
+            Multitaller
           </caption>
           <thead>
             <tr>
@@ -169,7 +172,7 @@ const planNames = ['Gratis', 'Taller', 'Pro'];
             comparison.map((block) => (
               <tbody>
                 <tr class="table-group">
-                  <th scope="colgroup" colspan={4}>
+                  <th scope="colgroup" colspan={planNames.length + 1}>
                     {block.group}
                   </th>
                 </tr>
@@ -446,13 +449,18 @@ const planNames = ['Gratis', 'Taller', 'Pro'];
     color: var(--navy-200);
   }
 
+  /* `nowrap` mantiene el «/ mes» pegado al importe. Al pasar de tres tarjetas a
+     cuatro, cada columna se estrechó y «S/ 179.00 / mes» se partía en dos líneas,
+     que descuadraba las tarjetas entre sí. El `clamp` achica la cifra donde no
+     cabe, y en móvil la tarjeta ocupa el ancho completo. */
   .price-card__price {
     font-family: var(--font-display);
     font-weight: var(--fw-black);
-    font-size: clamp(30px, 3.4vw, 40px);
+    font-size: clamp(28px, 3vw, 40px);
     line-height: 1.05;
     letter-spacing: -0.02em;
     color: var(--brand-primary);
+    white-space: nowrap;
   }
 
   .price-card--featured .price-card__price {

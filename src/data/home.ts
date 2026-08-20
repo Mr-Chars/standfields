@@ -36,6 +36,7 @@ export const saasCard = {
     'Órdenes de servicio con estados y tiempos',
     'Control de clientes y su historial completo',
     'Base de datos de vehículos por marca y modelo',
+    'Varias sedes en una cuenta, con los datos de cada taller por separado',
   ],
   actions: {
     primary: { label: 'Empezar prueba gratis', href: ROUTES.softwareTaller },
@@ -61,12 +62,12 @@ export const productDetail = {
   title: 'El taller deja de vivir en cuadernos y hojas de cálculo',
   text:
     'Cada vehículo que entra queda registrado, cada orden tiene un responsable y un ' +
-    'estado, y el cliente sabe en qué va su reparación. La información deja de depender ' +
-    'de quién esté ese día en el mostrador.',
+    'estado, y en el mostrador se sabe en qué va cada reparación. La información deja de ' +
+    'depender de quién esté ese día detrás del mostrador.',
   modules: [
     {
       title: 'Órdenes de servicio',
-      text: 'Diagnóstico, repuestos, mano de obra y aprobación del cliente en un solo documento.',
+      text: 'Motivo de ingreso, servicios cotizados, mano de obra y estado, en un solo documento.',
     },
     {
       title: 'Control de clientes',
@@ -74,11 +75,15 @@ export const productDetail = {
     },
     {
       title: 'Base de datos de vehículos',
-      text: 'Marca, modelo, año y motorización precargados para no volver a escribirlos.',
+      text: 'Marcas y modelos precargados; placa, año y motorización quedan en la ficha del auto.',
     },
   ],
   panelCaption: 'Naix · vista de órdenes',
   panelPlaceholder: 'Captura del panel de Naix',
+  panelAlt:
+    'Listado de órdenes de servicio de Naix: buscador por cliente o placa, filtros por ' +
+    'estado, carga de trabajo por técnico y las órdenes con su vehículo, su mecánico y ' +
+    'su importe.',
   link: { label: 'Ver todos los módulos', href: ROUTES.softwareTaller },
 };
 

@@ -7,27 +7,63 @@ import Faq from '@/components/ui/Faq.astro';
 import { Image } from 'astro:assets';
 import ImagePlaceholder from '@/components/ui/ImagePlaceholder.astro';
 import dashboardPreview from '@/assets/sass-naix-dashboard-preview.png';
+import receptionShot from '@/assets/sass-naix-recepcion-orden.png';
+import boardShot from '@/assets/sass-naix-tablero-estados.png';
+import receiptShot from '@/assets/sass-naix-comprobante-cliente.png';
 import PageHero from '@/components/sections/PageHero.astro';
 import CtaSection from '@/components/sections/CtaSection.astro';
 import { ROUTES } from '@/config/routes';
 import { CONTACT, WHATSAPP } from '@/config/site';
 import { breadcrumbSchema, faqSchema, softwareSchema } from '@/lib/structured-data';
-import { faq, features, hero, modules, planSummary, problems } from '@/data/software-taller';
+import {
+  faq,
+  features,
+  hero,
+  modules,
+  modulesNote,
+  multiSite,
+  planSummary,
+  planSummaryNote,
+  problems,
+} from '@/data/software-taller';
 
 const crumbs = [{ label: 'Naix' }];
 const path = ROUTES.softwareTaller;
+
+/**
+ * Captura de cada bloque de «En detalle», en el mismo orden que `features`.
+ *
+ * El import vive aquí y no en el archivo de datos para que Astro pueda
+ * optimizar la imagen: `astro:assets` solo transforma lo que se importa desde
+ * un componente. Si algún día se añade un cuarto bloque sin captura, la fila
+ * vuelve a pintar el marcador en lugar de romperse.
+ */
+const featureShots = [receptionShot, boardShot, receiptShot];
+
+/**
+ * Ofertas para los datos estructurados.
+ *
+ * Multitaller queda fuera porque no tiene precio de lista: `price` saldría vacío
+ * y una `Offer` sin importe es inválida para Google. Es la misma decisión que
+ * toma el backend en `AvailablePlans`, que tampoco lo publica.
+ */
+const pricedPlans = planSummary.filter((plan) => !plan.quoted);
+
+/** Los planes que se cierran hablando llevan a contacto; el resto, a la comparativa. */
+const planHref = (tier: string): string =>
+  tier === 'Pro' || tier === 'Multitaller' ? ROUTES.contacto : ROUTES.precios;
 ---
 
 <BaseLayout
   active="saas"
   path={path}
   title="Naix — software para talleres mecánicos"
-  description="Naix es el software de Standfields para talleres mecánicos: órdenes de servicio, control de clientes y base de datos de vehículos. Prueba gratis 14 días, sin tarjeta."
+  description="Naix es el software de Standfields para talleres mecánicos: órdenes de servicio, control de clientes y base de datos de vehículos. Prueba el plan Pro 14 días gratis, sin tarjeta."
   structuredData={[
     breadcrumbSchema(crumbs, path),
     faqSchema(faq),
     softwareSchema(
-      planSummary.map((plan) => ({
+      pricedPlans.map((plan) => ({
         name: plan.tier,
         price: plan.price === 'Gratis' ? '0' : plan.price.replace(/[^\d.]/g, ''),
         description: plan.text,
@@ -44,7 +80,7 @@ const path = ROUTES.softwareTaller;
     tone="navy"
     layout="aside"
     actions={[
-      { label: 'Empezar prueba gratis de 14 días', href: '#planes' },
+      { label: 'Probar Pro 14 días gratis', href: '#planes' },
       {
         label: 'Preguntar por WhatsApp',
         href: WHATSAPP.software,
@@ -101,10 +137,12 @@ const path = ROUTES.softwareTaller;
               {module.title}
             </h3>
             <p class="note">{module.text}</p>
+            {module.plan && <span class="module-card__plan">{module.plan}</span>}
           </li>
         ))
       }
     </ul>
+    <p class="note modules-note">{modulesNote}</p>
   </Section>
 
   {/* 03 — En detalle */}
@@ -118,7 +156,7 @@ const path = ROUTES.softwareTaller;
       </div>
 
       {
-        features.map((feature) => (
+        features.map((feature, index) => (
           <div class:list={['feature-row', feature.reversed && 'feature-row--reversed']}>
             <div class="feature-row__text">
               <span class="feature-row__eyebrow">{feature.eyebrow}</span>
@@ -133,7 +171,18 @@ const path = ROUTES.softwareTaller;
                 ))}
               </ul>
             </div>
-            <ImagePlaceholder label={feature.placeholder} ratio="4 / 3" class="feature-row__media" />
+            {featureShots[index] ? (
+              <Image
+                src={featureShots[index]}
+                alt={feature.alt}
+                widths={[480, 800, 1200]}
+                sizes="(min-width: 900px) 46vw, 92vw"
+                loading="lazy"
+                class="feature-row__media feature-row__shot"
+              />
+            ) : (
+              <ImagePlaceholder label={feature.placeholder} ratio="4 / 3" class="feature-row__media" />
+            )}
           </div>
         ))
       }
@@ -165,7 +214,7 @@ const path = ROUTES.softwareTaller;
             </p>
             <p class="note">{plan.text}</p>
             <Button
-              href={plan.featured ? ROUTES.precios : plan.tier === 'Pro' ? ROUTES.contacto : ROUTES.precios}
+              href={planHref(plan.tier)}
               variant={plan.featured ? 'secondary' : 'outline'}
               class="plan-card__cta"
             >
@@ -175,6 +224,32 @@ const path = ROUTES.softwareTaller;
         ))
       }
     </ul>
+    <p class="note plans-note">{planSummaryNote}</p>
+
+    {/* Varias sedes: va pegado a los planes porque es lo que explica Multitaller. */}
+    <div class="multisite on-dark">
+      <div class="multisite__text">
+        <span class="multisite__eyebrow">{multiSite.eyebrow}</span>
+        <h3 class="multisite__title">{multiSite.title}</h3>
+        <p class="prose measure">{multiSite.text}</p>
+        <Button href={multiSite.cta.href} variant="secondary" iconAfter="arrow-right">
+          {multiSite.cta.label}
+        </Button>
+      </div>
+      <div>
+        <ul class="multisite__bullets">
+          {
+            multiSite.bullets.map((bullet) => (
+              <li>
+                <Icon name="check" size={17} />
+                <span>{bullet}</span>
+              </li>
+            ))
+          }
+        </ul>
+        <p class="multisite__footnote">{multiSite.footnote}</p>
+      </div>
+    </div>
   </Section>
 
   {/* 05 — Dudas frecuentes */}
@@ -194,7 +269,7 @@ const path = ROUTES.softwareTaller;
 
   <CtaSection
     title="Prueba Naix en tu propio taller."
-    text="Catorce días gratis, sin tarjeta. Si decides quedarte, migramos tu información y capacitamos a tu equipo."
+    text="Catorce días del plan Pro, gratis y sin tarjeta. Si decides quedarte, migramos tu información y capacitamos a tu equipo."
     primary={{ label: 'Crear mi cuenta de prueba', href: ROUTES.precios }}
     secondary={{
       label: `WhatsApp ${CONTACT.phoneDisplay}`,
@@ -277,6 +352,27 @@ const path = ROUTES.softwareTaller;
     color: var(--brand-secondary);
   }
 
+  /* Etiqueta del plan que hace falta para tener el módulo. `margin-top: auto` la
+     pega al pie de la tarjeta, para que quede a la misma altura en todas aunque
+     el texto de arriba tenga distinto largo. */
+  .module-card__plan {
+    margin-top: auto;
+    align-self: flex-start;
+    padding: 4px 10px;
+    border: 1px solid var(--border-subtle);
+    border-radius: 999px;
+    background: var(--cream-100);
+    color: var(--text-soft);
+    font-size: 11.5px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+
+  .modules-note {
+    margin-top: clamp(20px, 2.4vw, 28px);
+    max-width: 62ch;
+  }
+
   /* ── Filas alternas de detalle funcional ────────────────────────────── */
 
   .detail {
@@ -346,6 +442,20 @@ const path = ROUTES.softwareTaller;
     border-color: var(--border-subtle);
   }
 
+  /* La captura ocupa el mismo hueco 4/3 que reservaba el marcador. `object-fit`
+     y `object-position` sólo actúan si algún día llega una imagen con otra
+     proporción: las actuales ya son 4/3 y entran enteras. */
+  .feature-row :global(.feature-row__shot) {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    object-position: top center;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+  }
+
   /* ── Planes ─────────────────────────────────────────────────────────── */
 
   .section-head {
@@ -396,13 +506,18 @@ const path = ROUTES.softwareTaller;
     color: var(--navy-200);
   }
 
+  /* `nowrap` mantiene el «/mes» pegado al importe. Con cuatro tarjetas cada
+     columna es más estrecha y «S/ 179.00 /mes» se partía en dos líneas, que dejaba
+     las tarjetas desalineadas entre sí. El `clamp` ya achica la cifra en los anchos
+     donde no cabe, y en móvil la tarjeta ocupa todo el ancho. */
   .plan-card__price {
     font-family: var(--font-display);
     font-weight: var(--fw-black);
-    font-size: clamp(30px, 3.4vw, 40px);
+    font-size: clamp(28px, 3vw, 40px);
     line-height: 1;
     letter-spacing: -0.02em;
     color: var(--brand-primary);
+    white-space: nowrap;
   }
 
   .plan-card--featured .plan-card__price {
@@ -423,6 +538,76 @@ const path = ROUTES.softwareTaller;
   .plan-card :global(.plan-card__cta) {
     margin-top: auto;
     align-self: stretch;
+  }
+
+  .plans-note {
+    margin-top: clamp(20px, 2.4vw, 28px);
+    max-width: 62ch;
+  }
+
+  /* ── Varias sedes ───────────────────────────────────────────────────── */
+
+  .multisite {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr));
+    gap: clamp(28px, 4vw, 56px);
+    align-items: start;
+    margin-top: clamp(36px, 4.5vw, 64px);
+    padding: clamp(28px, 3.6vw, 48px);
+    border-radius: var(--radius-lg);
+  }
+
+  .multisite__eyebrow {
+    display: block;
+    margin-bottom: 12px;
+    color: var(--text-on-dark-muted);
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .multisite__title {
+    margin-bottom: 14px;
+    max-width: 18ch;
+    font-family: var(--font-display);
+    font-size: clamp(24px, 2.8vw, 32px);
+    line-height: 1.15;
+  }
+
+  .multisite__text > :global(.btn) {
+    margin-top: clamp(20px, 2.4vw, 28px);
+  }
+
+  .multisite__bullets {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    list-style: none;
+  }
+
+  .multisite__bullets li {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    line-height: 1.5;
+  }
+
+  /* El icono no debe encogerse cuando el texto salta a dos líneas. `navy-200` y no
+     `brand-secondary`: el azul de marca sobre el fondo navy no se vería. */
+  .multisite__bullets :global(svg) {
+    flex: none;
+    margin-top: 4px;
+    color: var(--text-on-dark-muted);
+  }
+
+  .multisite__footnote {
+    margin-top: clamp(20px, 2.4vw, 26px);
+    padding-top: 18px;
+    border-top: 1px solid var(--border-inverse-strong);
+    color: var(--text-on-dark-muted);
+    font-size: 13.5px;
+    line-height: 1.6;
   }
 
   /* ── FAQ ────────────────────────────────────────────────────────────── */

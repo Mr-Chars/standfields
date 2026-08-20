@@ -3,7 +3,8 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import Section from '@/components/ui/Section.astro';
 import Button from '@/components/ui/Button.astro';
 import Icon from '@/components/ui/Icon.astro';
-import ImagePlaceholder from '@/components/ui/ImagePlaceholder.astro';
+import { Image } from 'astro:assets';
+import ordersPanel from '@/assets/sass-naix-vista-ordenes.png';
 import HeroParticles from '@/components/sections/HeroParticles.astro';
 import CtaSection from '@/components/sections/CtaSection.astro';
 import { ROUTES } from '@/config/routes';
@@ -151,7 +152,14 @@ import {
           <span class="panel__dot" aria-hidden="true"></span>
           {productDetail.panelCaption}
         </figcaption>
-        <ImagePlaceholder label={productDetail.panelPlaceholder} ratio="4 / 3" class="panel__slot" />
+        <Image
+          src={ordersPanel}
+          alt={productDetail.panelAlt}
+          widths={[480, 800, 1200]}
+          sizes="(min-width: 900px) 46vw, 92vw"
+          loading="lazy"
+          class="panel__slot"
+        />
       </figure>
     </div>
   </Section>
@@ -350,7 +358,15 @@ import {
     background: var(--brand-primary);
   }
 
+  /* La captura ocupa exactamente el hueco que reservaba el marcador (4/3), para
+     que sustituirla no mueva el resto de la sección. */
   .panel :global(.panel__slot) {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    object-position: top center;
     border: 0;
     border-radius: 0;
     background: var(--cream-100);

@@ -1,5 +1,6 @@
 import type { IconName } from '@/components/ui/Icon.astro';
 import type { FaqItem } from '@/components/ui/Faq.astro';
+import { ROUTES } from '@/config/routes';
 
 /** Contenido de la página de Naix, el producto SaaS para talleres mecánicos. */
 
@@ -23,13 +24,21 @@ export const problems = [
   { key: 'D', text: 'Al cierre de mes no se sabe qué se facturó, qué está pendiente ni qué se perdió.' },
 ];
 
-export const modules: { icon: IconName; title: string; text: string }[] = [
+/**
+ * Los seis módulos del producto.
+ *
+ * `plan` marca los que el catálogo de planes deja fuera del gratuito: sin esa
+ * etiqueta, la rejilla prometía como incluido lo que la tabla de precios cobra
+ * aparte. Las claves que lo deciden son `module-dashboard`, `module-finance` y
+ * `module-receipts` en el backend.
+ */
+export const modules: { icon: IconName; title: string; text: string; plan?: string }[] = [
   {
     icon: 'document',
     title: 'Órdenes de servicio',
     text:
-      'Alta de la orden con diagnóstico, repuestos, mano de obra y estados: recibido, ' +
-      'en proceso, esperando repuesto, listo, entregado.',
+      'Alta de la orden con motivo de ingreso, kilometraje y servicios cotizados, y ' +
+      'estados: recibido, en proceso, en revisión, listo y entregado.',
   },
   {
     icon: 'user-plus',
@@ -42,80 +51,118 @@ export const modules: { icon: IconName; title: string; text: string }[] = [
     icon: 'car',
     title: 'Base de datos de vehículos',
     text:
-      'Catálogo de marcas, modelos, años y motorizaciones precargado. Placa, kilometraje ' +
+      'Catálogo de marcas y modelos precargado. Placa, año, motorización, kilometraje ' +
       'y notas técnicas por unidad.',
   },
   {
-    icon: 'calendar',
-    title: 'Agenda y citas',
+    icon: 'briefcase',
+    title: 'Equipo y permisos',
     text:
-      'Reserva de horarios por bahía y por mecánico, con recordatorio automático al ' +
-      'cliente el día previo.',
+      'Cada servicio y cada subtarea con su mecánico asignado, y roles que deciden qué ' +
+      'pantalla ve cada persona del taller.',
   },
   {
     icon: 'chart-line',
     title: 'Reportes y métricas',
     text:
-      'Ingresos por periodo, ticket promedio, tiempos de reparación y ranking de ' +
-      'servicios más vendidos.',
+      'Ingresos por periodo, ticket promedio, tiempos de reparación, margen por tipo de ' +
+      'servicio y cuentas por cobrar.',
+    plan: 'Plan Pro',
   },
   {
     icon: 'card',
-    title: 'Cotizaciones y facturación',
+    title: 'Cotizaciones y comprobantes',
     text:
-      'Cotización enviada por WhatsApp, aprobación del cliente registrada y comprobante ' +
-      'emitido desde la misma orden.',
+      'Cotización dentro de la orden, con IGV incluido, sin IGV o + IGV, y comprobante ' +
+      'en PDF con los datos del taller, su serie y su correlativo.',
+    plan: 'Planes Taller y Pro',
   },
 ];
 
+/** Aclaración al pie de la rejilla de módulos. */
+export const modulesNote =
+  'Los módulos con etiqueta de plan están disponibles en ese plan en adelante. ' +
+  'El resto viene en los tres, incluido el gratuito.';
+
+/**
+ * Los tres momentos del taller, cada uno con su captura del producto.
+ *
+ * `alt` describe lo que se ve en la imagen; `placeholder` queda como respaldo
+ * por si una fila se queda sin captura, que es lo que había antes de tenerlas.
+ */
 export const features = [
   {
     eyebrow: 'Recepción',
-    title: 'Un vehículo entra y en 40 segundos está registrado',
+    title: 'Un vehículo entra y en cuatro pasos está registrado',
     text:
-      'Se busca por placa: si el vehículo ya existe, aparece con su historial. Si es ' +
-      'nuevo, se elige marca y modelo del catálogo y se registra el kilometraje. Se anota ' +
-      'lo que reporta el cliente y se toman fotos del estado de entrada.',
+      'Cliente, vehículo, detalles de ingreso y servicios. Si el cliente ya existe, sus ' +
+      'vehículos aparecen con su historial; si es nuevo, se registra sin salir de la ' +
+      'pantalla. Se anota el kilometraje, lo que reporta el cliente y cómo llega el auto.',
     bullets: [
-      'Búsqueda por placa, cliente o teléfono',
-      'Fotos del estado de entrada adjuntas a la orden',
-      'Checklist de recepción firmado en pantalla',
+      'Kilometraje, nivel de combustible y observaciones de entrada',
+      'Motivo de ingreso y fecha de entrega comprometida',
+      'Técnico asignado desde el primer momento',
     ],
     placeholder: 'Pantalla de recepción / alta de orden',
+    alt:
+      'Alta de una orden en Naix: cliente y vehículo verificados, kilometraje de ' +
+      'ingreso, técnico asignado y el motivo de ingreso que reportó el cliente.',
     /** Invierte el orden de las columnas, como en el diseño. */
     reversed: false,
   },
   {
     eyebrow: 'Taller',
-    title: 'El tablero dice qué se trabaja ahora y qué está frenado',
+    title: 'El tablero dice qué se trabaja ahora y quién lo tiene',
     text:
-      'Cada orden avanza por columnas visibles para todo el equipo. Si falta un repuesto, ' +
-      'la orden se marca y se ve el motivo del retraso sin preguntar a nadie.',
+      'Cada servicio de la orden se parte en subtareas, y cada subtarea avanza por ' +
+      'columnas: por hacer, en proceso, en revisión y finalizado. El avance de la orden ' +
+      'se ve sin preguntarle a nadie.',
     bullets: [
-      'Asignación de mecánico y bahía',
-      'Alertas de órdenes detenidas más de 48 horas',
+      'Mecánico asignado por servicio y por subtarea',
+      'Carga de trabajo por técnico y órdenes abiertas ahora mismo',
       'Funciona en tablet y celular dentro del taller',
     ],
     placeholder: 'Tablero de estados de órdenes',
+    alt:
+      'Tablero de progreso de una orden en Naix, con las subtareas repartidas entre las ' +
+      'columnas Por hacer, En proceso, En revisión y Finalizado, cada una con su mecánico.',
     reversed: true,
   },
   {
     eyebrow: 'Cliente',
-    title: 'El dueño del auto se entera antes de llamar',
+    title: 'Lo que se le cobra al cliente queda documentado',
     text:
-      'Cada cambio de estado puede enviar un mensaje por WhatsApp con el avance y el ' +
-      'enlace a la cotización. Menos llamadas al mostrador y aprobaciones más rápidas.',
+      'Cada orden emite su comprobante en PDF con los datos del taller, el detalle de ' +
+      'servicios, lo pagado y el saldo. La ficha del cliente guarda sus visitas, y desde ' +
+      'ahí se le llama o se le escribe por WhatsApp.',
     bullets: [
-      'Cotización aprobada por el cliente con registro de fecha',
-      'Recordatorio de mantenimiento según kilometraje',
-      'Historial descargable en PDF para reventa del vehículo',
+      'Comprobante en PDF con serie y correlativo propios',
+      'Historial de visitas y trabajos por vehículo',
+      'Saldo pendiente y cuentas por cobrar al día',
     ],
-    placeholder: 'Notificación / cotización vista por el cliente',
+    placeholder: 'Comprobante de servicio en PDF',
+    alt:
+      'Comprobante de servicio de Naix en PDF: datos del taller, cliente y vehículo, ' +
+      'detalle de los servicios cobrados, total pagado y saldo pendiente.',
     reversed: false,
   },
 ];
 
-export const planSummary = [
+/** Resumen de un plan en la rejilla de la página del producto. */
+export interface PlanSummary {
+  tier: string;
+  price: string;
+  unit: string;
+  text: string;
+  cta: string;
+  featured: boolean;
+  /** Distintivo sobre la tarjeta, como «Recomendado». */
+  badge?: string;
+  /** Sin precio de lista: se cotiza hablando y no entra en los datos estructurados. */
+  quoted?: boolean;
+}
+
+export const planSummary: PlanSummary[] = [
   {
     tier: 'Gratis',
     price: 'Gratis',
@@ -129,7 +176,7 @@ export const planSummary = [
     price: 'S/ 89.00',
     unit: ' /mes',
     text: 'Para el taller establecido, con tres a cinco mecánicos. 200 órdenes al mes, 5 usuarios, comprobantes en PDF.',
-    cta: 'Probar 14 días gratis',
+    cta: 'Quiero este',
     featured: true,
     badge: 'Recomendado',
   },
@@ -138,10 +185,61 @@ export const planSummary = [
     price: 'S/ 179.00',
     unit: ' /mes',
     text: 'Para el taller que quiere saber si gana dinero y en qué. Órdenes sin límite, 12 usuarios, tablero de dirección y finanzas.',
-    cta: 'Quiero este',
+    // La prueba es de Pro y no del plan recomendado: `PLANS_TRIAL_PLAN=PRO` en el
+    // backend, y al vencer la cuenta pasa a Gratis, no a Taller.
+    cta: 'Probar Pro 14 días gratis',
     featured: false,
   },
+  {
+    tier: 'Multitaller',
+    price: 'A medida',
+    unit: '',
+    text: 'Para cadenas con varias sedes. Sin topes de órdenes, usuarios, roles ni almacenamiento, y la cuota de talleres que necesite la cadena.',
+    cta: 'Hablemos',
+    featured: false,
+    /*
+     * Sin precio de lista a propósito: en el backend es `plans.is_public = false`
+     * y `AvailablePlans` lo deja fuera del catálogo público. `quoted` es lo que
+     * usa la página para excluirlo de los datos estructurados, donde una oferta
+     * con `price` vacío sería inválida.
+     */
+    quoted: true,
+  },
 ];
+
+/** Aclara de qué plan es la prueba y en cuál termina. */
+export const planSummaryNote =
+  'La prueba de 14 días es del plan Pro, sin tarjeta. Al terminar, la cuenta pasa al ' +
+  'plan Gratis y no se cobra nada si no eliges otro.';
+
+/**
+ * Varias sedes en una misma cuenta.
+ *
+ * Lo que se afirma aquí es lo que hace el sistema hoy: `enterprise_credentials`
+ * une un usuario con cada uno de sus talleres, el `TenantScope` separa clientes,
+ * vehículos, órdenes, trabajadores y gastos, y `users.max_enterprises` fija la
+ * cuota —tres por defecto, ampliable por cuenta—. Lo que **no** existe todavía y
+ * por eso no se promete: una vista consolidada de la cadena. Cada sede lleva
+ * además su propia suscripción, porque `subscriptions` cuelga de la empresa.
+ */
+export const multiSite = {
+  eyebrow: 'Varias sedes',
+  title: '¿Tienes más de un taller?',
+  text:
+    'Naix maneja varias sedes desde una sola cuenta. Cambias de taller sin cerrar ' +
+    'sesión, y cada uno guarda sus propios clientes, vehículos, órdenes, mecánicos y ' +
+    'caja: los números de una sede nunca se mezclan con los de otra. El catálogo de ' +
+    'marcas y modelos, en cambio, es común a todas.',
+  bullets: [
+    'Un mismo usuario entra a todos sus talleres y cambia de sede desde el menú',
+    'Clientes, vehículos, órdenes, trabajadores y finanzas, separados por taller',
+    'Roles y permisos propios de cada sede: el jefe de una no entra a la otra',
+  ],
+  footnote:
+    'Toda cuenta puede tener hasta tres talleres propios. Si la cadena necesita más, ' +
+    'ampliamos la cuota al contratar Multitaller. Cada sede lleva su propio plan.',
+  cta: { label: 'Hablar de mi cadena', href: ROUTES.contacto },
+};
 
 export const faq: FaqItem[] = [
   {
@@ -165,12 +263,14 @@ export const faq: FaqItem[] = [
   {
     question: '¿Mis mecánicos van a poder usarlo?',
     answer:
-      'La vista de taller de Naix tiene botones grandes y solo tres acciones: tomar la orden, ' +
-      'marcar avance y cerrarla. La capacitación toma una hora.',
+      'Naix tiene una pantalla propia para el mecánico: ve solo las órdenes que tiene ' +
+      'asignadas y mueve sus tareas. No entra a precios, ni a clientes, ni a finanzas. ' +
+      'La capacitación toma una hora.',
   },
   {
     question: '¿Qué pasa con mis datos si cancelo?',
     answer:
-      'Puedes exportar todo en Excel en cualquier momento. No hay contrato de permanencia.',
+      'No hay contrato de permanencia: cancelas cuando quieras. Si cierras la cuenta, te ' +
+      'entregamos una copia de tus clientes, vehículos y órdenes.',
   },
 ];

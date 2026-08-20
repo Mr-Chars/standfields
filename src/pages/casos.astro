@@ -3,6 +3,8 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import Section from '@/components/ui/Section.astro';
 import Icon from '@/components/ui/Icon.astro';
 import ImagePlaceholder from '@/components/ui/ImagePlaceholder.astro';
+import { Image } from 'astro:assets';
+import naixCover from '@/assets/sass-naix-caso-portada.png';
 import PageHero from '@/components/sections/PageHero.astro';
 import CtaSection from '@/components/sections/CtaSection.astro';
 import { ROUTES } from '@/config/routes';
@@ -12,6 +14,17 @@ import { CASES, FILTERS } from '@/data/casos';
 
 const crumbs = [{ label: 'Casos' }];
 const path = ROUTES.casos;
+
+/**
+ * Capturas de los casos que ya tienen una, por la clave que declara `casos.ts`.
+ *
+ * El import vive aquí porque `astro:assets` solo optimiza lo que se importa
+ * desde un componente. Los casos sin entrada en este mapa siguen pintando el
+ * marcador, que es lo que hay hasta que llegue su captura.
+ */
+const caseShots: Record<string, ImageMetadata> = {
+  naix: naixCover,
+};
 ---
 
 <BaseLayout
@@ -72,12 +85,23 @@ const path = ROUTES.casos;
         CASES.map((item) => (
           <li data-category={item.category}>
             <article class:list={['case', item.featured && 'case--featured on-dark']}>
-              <ImagePlaceholder
-                label={item.placeholder}
-                ratio="4 / 3"
-                tone={item.featured ? 'dark' : 'light'}
-                class="case__media"
-              />
+              {item.imageKey && caseShots[item.imageKey] ? (
+                <Image
+                  src={caseShots[item.imageKey]}
+                  alt={item.imageAlt ?? item.placeholder}
+                  widths={[480, 800, 1200]}
+                  sizes="(min-width: 1100px) 32vw, (min-width: 700px) 46vw, 92vw"
+                  loading="lazy"
+                  class="case__media case__shot"
+                />
+              ) : (
+                <ImagePlaceholder
+                  label={item.placeholder}
+                  ratio="4 / 3"
+                  tone={item.featured ? 'dark' : 'light'}
+                  class="case__media"
+                />
+              )}
               <div class="case__body">
                 <span class="case__kicker">{item.kicker}</span>
                 <h2 class="card-title" style="--fs: 22px">
@@ -197,6 +221,17 @@ const path = ROUTES.casos;
 
   .case--featured :global(.case__media) {
     border-bottom-color: var(--border-inverse-strong);
+  }
+
+  /* Mismo hueco 4/3 que reservaba el marcador, para que las tarjetas con captura
+     y las que aún no la tienen midan igual dentro de la rejilla. */
+  .case :global(.case__shot) {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    object-position: top center;
   }
 
   .case__body {

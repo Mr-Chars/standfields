@@ -66,7 +66,9 @@ export const founder = {
 export const numbers = [
   { value: '+40', label: 'Proyectos entregados' },
   { value: '8', label: 'Años en el mercado' },
-  // TODO: sustituir «[n]» por el número real de talleres.
-  { value: '[n]', label: 'Talleres usando Naix' },
+  // Antes era «[n] Talleres usando Naix» y el marcador salió publicado. Mientras
+  // no haya una cifra de talleres que se pueda sostener, va el dato de puesta en
+  // marcha, que es el mismo que promete la portada.
+  { value: '72 h', label: 'Puesta en marcha de Naix' },
   { value: '100%', label: 'Proyectos con código entregado' },
 ];
