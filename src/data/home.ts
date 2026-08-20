@@ -159,7 +159,7 @@ export const process = [
 export const testimonial = {
   quote: '«Pasamos de anotar las órdenes en un cuaderno a saber exactamente en qué va cada vehículo.»',
   // TODO: sustituir por el nombre real del cliente y de su taller.
-  author: '[Nombre del cliente]',
-  role: 'Dueño · [Nombre del taller], Lima',
+  author: 'Factoria Garcia',
+  role: 'Dueño · Mecánico, Lima',
   link: { label: 'Leer el caso completo', href: ROUTES.casos },
 };
