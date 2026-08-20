@@ -1,0 +1,18 @@
+# build
+dist/
+.astro/
+
+# dependencias
+node_modules/
+
+# entorno
+.env
+.env.production
+.dev.vars
+
+# sistema
+.DS_Store
+Thumbs.db
+
+# herramientas
+.playwright-mcp/

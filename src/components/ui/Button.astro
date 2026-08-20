@@ -1,0 +1,56 @@
+---
+import Icon, { type IconName } from './Icon.astro';
+
+/**
+ * Botón o enlace de acción.
+ *
+ * Se pinta como <a> cuando recibe `href` y como <button> en caso contrario, para
+ * que la semántica siempre coincida con lo que el control hace de verdad.
+ * Los enlaces externos añaden `rel="noopener noreferrer"` automáticamente.
+ */
+interface Props {
+  href?: string;
+  type?: 'button' | 'submit';
+  variant?: 'primary' | 'secondary' | 'outline' | 'on-dark' | 'outline-on-dark';
+  size?: 'md' | 'lg';
+  /** Icono a la derecha del texto (el habitual del diseño: la flecha). */
+  iconAfter?: IconName;
+  /** Icono a la izquierda del texto (WhatsApp, correo…). */
+  iconBefore?: IconName;
+  /** Abre en pestaña nueva y marca el enlace como externo. */
+  external?: boolean;
+  class?: string;
+  id?: string;
+}
+
+const {
+  href,
+  type = 'button',
+  variant = 'primary',
+  size = 'md',
+  iconAfter,
+  iconBefore,
+  external = false,
+  class: className,
+  ...rest
+} = Astro.props;
+
+const classes = ['btn', `btn--${variant}`, size === 'lg' && 'btn--lg', className]
+  .filter(Boolean)
+  .join(' ');
+
+const iconSize = size === 'lg' ? 16 : 15;
+const Tag = href ? 'a' : 'button';
+---
+
+<Tag
+  class={classes}
+  {...href ? { href } : { type }}
+  {...external ? { target: '_blank', rel: 'noopener noreferrer' } : {}}
+  {...rest}
+>
+  {iconBefore && <Icon name={iconBefore} size={iconSize} strokeWidth={2} />}
+  <slot />
+  {iconAfter && <Icon name={iconAfter} size={iconSize} />}
+  {external && <span class="visually-hidden">(se abre en una pestaña nueva)</span>}
+</Tag>

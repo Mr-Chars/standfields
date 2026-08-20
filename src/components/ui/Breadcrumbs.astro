@@ -1,0 +1,105 @@
+---
+import { ROUTES } from '@/config/routes';
+
+/**
+ * Miga de pan de las páginas internas.
+ *
+ * Se marca con `aria-label` y el último elemento lleva `aria-current="page"`,
+ * que es lo que anuncia a un lector de pantalla dónde está. El JSON-LD
+ * `BreadcrumbList` correspondiente lo emite el layout a partir de los mismos
+ * datos, así que no hay que mantener dos listas.
+ */
+export interface Crumb {
+  label: string;
+  /** Sin href en el último nivel: la página actual no se enlaza a sí misma. */
+  href?: string;
+}
+
+interface Props {
+  items: Crumb[];
+}
+
+const { items } = Astro.props;
+const trail: Crumb[] = [{ label: 'Inicio', href: ROUTES.home }, ...items];
+---
+
+<nav class="crumbs" aria-label="Ruta de navegación">
+  <ol>
+    {
+      trail.map((crumb, index) => {
+        const isLast = index === trail.length - 1;
+        return (
+          <li>
+            {crumb.href && !isLast ? (
+              <a href={crumb.href}>{crumb.label}</a>
+            ) : (
+              <span aria-current="page">{crumb.label}</span>
+            )}
+            {!isLast && (
+              <span class="crumbs__sep" aria-hidden="true">
+                /
+              </span>
+            )}
+          </li>
+        );
+      })
+    }
+  </ol>
+</nav>
+
+<style>
+  .crumbs ol {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    padding: clamp(20px, 3vw, 30px) 0 0;
+  }
+
+  .crumbs li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 11.5px;
+    font-weight: var(--fw-extrabold);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-soft);
+  }
+
+  .crumbs a {
+    color: var(--brand-secondary);
+  }
+
+  .crumbs a:hover {
+    color: var(--brand-primary);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .crumbs__sep {
+    color: var(--text-soft);
+  }
+
+  /* Variante sobre fondo azul. `:global` porque `.on-dark` lo pone la sección
+     que envuelve al componente, fuera de su propio ámbito de estilos. */
+  :global(.on-dark) .crumbs li {
+    color: rgb(255 255 255 / 0.6);
+  }
+
+  :global(.on-dark) .crumbs a {
+    color: rgb(255 255 255 / 0.75);
+  }
+
+  :global(.on-dark) .crumbs a:hover {
+    color: var(--white);
+  }
+
+  :global(.on-dark) .crumbs span[aria-current] {
+    color: var(--navy-200);
+  }
+
+  :global(.on-dark) .crumbs__sep {
+    color: rgb(255 255 255 / 0.55);
+  }
+</style>

@@ -1,0 +1,286 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Section from '@/components/ui/Section.astro';
+import Icon from '@/components/ui/Icon.astro';
+import ImagePlaceholder from '@/components/ui/ImagePlaceholder.astro';
+import PageHero from '@/components/sections/PageHero.astro';
+import CtaSection from '@/components/sections/CtaSection.astro';
+import { ROUTES } from '@/config/routes';
+import { CONTACT, WHATSAPP } from '@/config/site';
+import { breadcrumbSchema } from '@/lib/structured-data';
+import { CASES, FILTERS } from '@/data/casos';
+
+const crumbs = [{ label: 'Casos' }];
+const path = ROUTES.casos;
+---
+
+<BaseLayout
+  active="casos"
+  path={path}
+  title="Casos y portafolio"
+  description="Sistemas a medida y tiendas Shopify que hoy están en operación con usuarios reales: qué problema resolvían, qué construimos y qué resultado dieron."
+  structuredData={[
+    breadcrumbSchema(crumbs, path),
+    {
+      '@context': 'https://schema.org',
+      '@type': 'CollectionPage',
+      name: 'Casos y portafolio de Standfields',
+      hasPart: CASES.map((item) => ({
+        '@type': 'CreativeWork',
+        name: item.title,
+        description: item.text,
+      })),
+    },
+  ]}
+>
+  <PageHero
+    crumbs={crumbs}
+    eyebrow="Portafolio"
+    title="Trabajo entregado y en operación"
+    lead="Sistemas y tiendas que hoy están funcionando con usuarios reales. Cada caso indica el problema, lo que construimos y el resultado."
+    titleMeasure="16ch"
+    layout="split"
+  >
+    <div slot="strip" class="filters">
+      <div class="container">
+        {/* Grupo de pestañas: sin JavaScript los tres botones quedan visibles y
+            el listado completo se muestra igual, que es el estado «Todos». */}
+        <div class="filters__group" role="group" aria-label="Filtrar casos por tipo">
+          {
+            FILTERS.map((filter, index) => (
+              <button
+                type="button"
+                class="filters__button"
+                data-filter={filter.value}
+                aria-pressed={index === 0 ? 'true' : 'false'}
+              >
+                {filter.label}
+              </button>
+            ))
+          }
+        </div>
+      </div>
+    </div>
+  </PageHero>
+
+  <Section hairline ariaLabel="Listado de casos">
+    <p class="visually-hidden" role="status" data-filter-status>
+      Mostrando los {CASES.length} casos.
+    </p>
+    <ul class="grid-auto cases" style="--min: 300px; --gap: clamp(20px, 2.5vw, 32px)" data-cases>
+      {
+        CASES.map((item) => (
+          <li data-category={item.category}>
+            <article class:list={['case', item.featured && 'case--featured on-dark']}>
+              <ImagePlaceholder
+                label={item.placeholder}
+                ratio="4 / 3"
+                tone={item.featured ? 'dark' : 'light'}
+                class="case__media"
+              />
+              <div class="case__body">
+                <span class="case__kicker">{item.kicker}</span>
+                <h2 class="card-title" style="--fs: 22px">
+                  {item.title}
+                </h2>
+                <p class="note">{item.text}</p>
+
+                {item.tags && (
+                  <ul class="case__tags">
+                    {item.tags.map((tag) => (
+                      <li class="tag tag--sm">{tag}</li>
+                    ))}
+                  </ul>
+                )}
+
+                {item.stats && (
+                  <dl class="mini-stats case__stats">
+                    {item.stats.map((stat) => (
+                      <div class="mini-stat">
+                        <dt class="mini-stat__value">{stat.value}</dt>
+                        <dd class="mini-stat__label">{stat.label}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                )}
+
+                {item.link && (
+                  <a class="link-arrow case__link" href={item.link.href}>
+                    {item.link.label}
+                    <Icon name="arrow-right" size={15} />
+                  </a>
+                )}
+              </div>
+            </article>
+          </li>
+        ))
+      }
+    </ul>
+  </Section>
+
+  <CtaSection
+    title="¿Tu proyecto se parece a alguno?"
+    text="Cuéntanos qué necesitas y te compartimos cómo lo resolvimos antes, con plazos y costos reales."
+    primary={{
+      label: `WhatsApp ${CONTACT.phoneDisplay}`,
+      href: WHATSAPP.general,
+      icon: 'whatsapp',
+      external: true,
+    }}
+    secondary={{ label: 'Conoce al equipo', href: ROUTES.nosotros }}
+  />
+</BaseLayout>
+
+<style>
+  .filters {
+    border-top: 1px solid var(--border-subtle);
+  }
+
+  .filters__group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: clamp(16px, 3vw, 32px);
+  }
+
+  .filters__button {
+    position: relative;
+    padding: 16px 0;
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    font-family: var(--font-display);
+    font-weight: var(--fw-bold);
+    font-size: 14px;
+    color: var(--text-soft);
+    cursor: pointer;
+    transition: var(--transition-color);
+  }
+
+  .filters__button:hover {
+    color: var(--brand-primary);
+  }
+
+  .filters__button[aria-pressed='true'] {
+    color: var(--brand-primary);
+  }
+
+  .filters__button[aria-pressed='true']::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -1px;
+    height: 3px;
+    background: var(--brand-primary);
+  }
+
+  /* ── Tarjeta de caso ────────────────────────────────────────────────── */
+
+  .case {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+  }
+
+  .case--featured {
+    border-color: var(--brand-primary);
+  }
+
+  .case :global(.case__media) {
+    border: 0;
+    border-bottom: 1px solid var(--border-subtle);
+    border-radius: 0;
+  }
+
+  .case--featured :global(.case__media) {
+    border-bottom-color: var(--border-inverse-strong);
+  }
+
+  .case__body {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 24px 22px 26px;
+  }
+
+  .case__kicker {
+    font-size: 11.5px;
+    font-weight: var(--fw-extrabold);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--brand-secondary);
+  }
+
+  .case--featured .case__kicker {
+    color: var(--navy-200);
+  }
+
+  .case__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 4px;
+  }
+
+  .case__stats {
+    margin-top: 6px;
+    --min: 120px;
+  }
+
+  .case__stats :global(dd) {
+    margin: 0;
+  }
+
+  .case__link {
+    margin-top: auto;
+    padding-top: 14px;
+  }
+
+  /* Estado oculto que aplica el filtro. */
+  .cases li[hidden] {
+    display: none;
+  }
+</style>
+
+<script>
+  /**
+   * Filtro del portafolio.
+   *
+   * Mejora progresiva: el HTML llega con los seis casos visibles (el estado
+   * «Todos»), así que sin JavaScript la página sigue siendo útil y completa.
+   * El filtro sólo oculta elementos con el atributo `hidden`, y una región
+   * `role="status"` anuncia cuántos casos quedan a quien use lector de pantalla.
+   */
+  const buttons = document.querySelectorAll<HTMLButtonElement>('[data-filter]');
+  const list = document.querySelector<HTMLUListElement>('[data-cases]');
+  const status = document.querySelector<HTMLElement>('[data-filter-status]');
+
+  if (buttons.length && list) {
+    const items = Array.from(list.children) as HTMLLIElement[];
+
+    const apply = (value: string) => {
+      let visible = 0;
+      for (const item of items) {
+        const match = value === 'todos' || item.dataset.category === value;
+        item.hidden = !match;
+        if (match) visible += 1;
+      }
+
+      for (const button of buttons) {
+        button.setAttribute('aria-pressed', String(button.dataset.filter === value));
+      }
+
+      if (status) {
+        status.textContent =
+          visible === 1 ? 'Mostrando 1 caso.' : `Mostrando ${visible} casos.`;
+      }
+    };
+
+    for (const button of buttons) {
+      button.addEventListener('click', () => apply(button.dataset.filter ?? 'todos'));
+    }
+  }
+</script>

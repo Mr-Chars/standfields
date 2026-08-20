@@ -1,0 +1,76 @@
+---
+/**
+ * Hueco reservado para una imagen que todavía no existe.
+ *
+ * El diseño de referencia trae 16 espacios vacíos (capturas del producto,
+ * tiendas de clientes, retrato del equipo). Hasta que lleguen los archivos se
+ * pinta este marcador, que ocupa exactamente el mismo espacio que ocupará la
+ * imagen final para que el layout no se mueva al sustituirlo.
+ *
+ * Para reemplazarlo:
+ *   1. Deja el archivo en `src/assets/` (no en `public/`, para que Astro lo
+ *      optimice y le ponga hash).
+ *   2. Cambia este componente por:
+ *        import { Image } from 'astro:assets';
+ *        import captura from '@/assets/captura.png';
+ *        <Image src={captura} alt="…" widths={[480, 800, 1200]} loading="lazy" />
+ *
+ * El marcador es decorativo: se oculta a lectores de pantalla para no anunciar
+ * un texto que describe algo que aún no está.
+ */
+interface Props {
+  /** Texto visible que describe qué imagen irá aquí. */
+  label: string;
+  /** Proporción del hueco, en formato CSS (`4 / 3`, `16 / 10`, `3 / 4`…). */
+  ratio?: string;
+  /** Sobre fondo azul el marcador invierte sus colores. */
+  tone?: 'light' | 'dark';
+  class?: string;
+}
+
+const { label, ratio = '4 / 3', tone = 'light', class: className } = Astro.props;
+---
+
+<div
+  class:list={['ph', tone === 'dark' && 'ph--dark', className]}
+  style={`--ratio: ${ratio}`}
+  aria-hidden="true"
+>
+  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+    <rect x="3" y="4" width="18" height="16" rx="2"></rect>
+    <circle cx="8.5" cy="9.5" r="1.6"></circle>
+    <path d="m4 18 5-5 4 4 3-3 4 4"></path>
+  </svg>
+  <span>{label}</span>
+</div>
+
+<style>
+  .ph {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    aspect-ratio: var(--ratio);
+    padding: 24px;
+    background: var(--ink-100);
+    border: 1px dashed var(--border-strong);
+    border-radius: var(--radius-lg);
+    /* --text-soft en vez de --text-muted: sobre el gris del marcador, el tono
+       claro se quedaba en 2.8:1 y no llegaba al mínimo de 4.5:1. */
+    color: var(--text-soft);
+    text-align: center;
+  }
+
+  .ph span {
+    font-size: 12.5px;
+    line-height: 1.5;
+    letter-spacing: 0.02em;
+  }
+
+  .ph--dark {
+    background: rgb(255 255 255 / 0.04);
+    border-color: var(--border-inverse-strong);
+    color: var(--navy-200);
+  }
+</style>

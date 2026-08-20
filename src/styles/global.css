@@ -1,0 +1,657 @@
+/* Base y primitivas de maquetado compartidas por todo el sitio.
+   Los componentes de src/components solo aportan lo que es específico suyo. */
+
+@import './tokens.css';
+@import './fonts.css';
+
+/* ── Reset mínimo ─────────────────────────────────────────────────────── */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+  /* Deja aire bajo la cabecera fija al saltar a un ancla. */
+  scroll-padding-top: 90px;
+}
+
+body {
+  margin: 0;
+  background: var(--bg-page);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: var(--lh-body);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  /* El diseño no tiene layout horizontal: cualquier desborde es un error. */
+  overflow-x: hidden;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: var(--fw-extrabold);
+  letter-spacing: var(--ls-display);
+  line-height: var(--lh-tight);
+  /* Se hereda del contenedor: así una sección oscura no necesita repintar cada
+     titular. Es justo lo que fallaba en el diseño de referencia, donde el reset
+     forzaba un color fijo y dejaba invisibles los títulos sobre azul. */
+  color: inherit;
+  text-wrap: pretty;
+}
+
+p {
+  margin: 0;
+  text-wrap: pretty;
+}
+
+ul,
+ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+  transition: var(--transition-color);
+}
+
+img,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+}
+
+::selection {
+  background: var(--navy-100);
+  color: var(--navy-900);
+}
+
+/* ── Foco visible ─────────────────────────────────────────────────────── */
+
+:focus-visible {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  box-shadow: var(--focus-ring);
+  border-radius: var(--radius-sm);
+}
+
+.on-dark :focus-visible {
+  box-shadow: var(--focus-ring-inverse);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ── Utilidades ───────────────────────────────────────────────────────── */
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skip-link {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 100;
+  padding: 12px 20px;
+  background: var(--navy-800);
+  color: var(--white);
+  font-family: var(--font-display);
+  font-weight: var(--fw-extrabold);
+  font-size: 14px;
+  border-radius: 0 0 var(--radius-md) 0;
+  transform: translateY(-120%);
+  transition: transform var(--dur-fast) var(--ease-standard);
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+}
+
+/* ── Contenedor y secciones ───────────────────────────────────────────── */
+
+.container {
+  width: 100%;
+  max-width: var(--container-max);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.section {
+  padding-block: var(--py, var(--section-py));
+}
+
+.section--hairline {
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.section--cream {
+  background: var(--bg-highlight);
+}
+
+.section--navy,
+.on-dark {
+  background: var(--bg-inverse);
+  color: var(--text-on-dark);
+}
+
+/* ── Rejilla fluida ───────────────────────────────────────────────────── */
+
+/* `min()` evita que una columna con ancho mínimo fijo desborde en móvil,
+   manteniendo intacto el reparto en escritorio. */
+.grid-auto {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(var(--min, 300px), 100%), 1fr));
+  gap: var(--gap, clamp(18px, 2vw, 26px));
+  align-items: var(--align, stretch);
+}
+
+/* ── Tipografía de página ─────────────────────────────────────────────── */
+
+.eyebrow {
+  display: block;
+  margin: 0 0 16px;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: var(--fw-extrabold);
+  letter-spacing: var(--ls-overline);
+  text-transform: uppercase;
+  color: var(--brand-secondary);
+}
+
+.on-dark .eyebrow {
+  color: var(--text-on-dark-muted);
+}
+
+.page-title {
+  font-size: clamp(34px, 5.4vw, 68px);
+  line-height: 1.02;
+  letter-spacing: -0.03em;
+  color: var(--brand-primary);
+}
+
+.section-title {
+  font-size: var(--fs, clamp(26px, 3.4vw, 42px));
+  line-height: var(--lh, var(--lh-tight));
+  color: var(--brand-primary);
+}
+
+.card-title {
+  font-family: var(--font-display);
+  font-weight: var(--fw-extrabold);
+  font-size: var(--fs, 21px);
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  color: var(--brand-primary);
+}
+
+.on-dark .page-title,
+.on-dark .section-title,
+.on-dark .card-title {
+  color: var(--text-on-dark);
+}
+
+.lead {
+  font-size: clamp(15px, 1.7vw, 19px);
+  line-height: 1.55;
+  color: var(--text-body);
+}
+
+.prose {
+  font-size: 16px;
+  line-height: var(--lh-body);
+  color: var(--text-body);
+}
+
+.note {
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: var(--text-soft);
+}
+
+.on-dark .lead,
+.on-dark .prose,
+.on-dark .note {
+  color: var(--text-on-dark-soft);
+}
+
+/* Ancho de línea cómodo para lectura. */
+.measure {
+  max-width: var(--measure, 48ch);
+}
+
+/* ── Botones y enlaces de acción ──────────────────────────────────────── */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: var(--tap-target);
+  padding: 12px 20px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  font-family: var(--font-display);
+  font-weight: var(--fw-extrabold);
+  font-size: 14px;
+  line-height: 1.2;
+  text-align: center;
+  cursor: pointer;
+  transition: var(--transition-color);
+}
+
+.btn--lg {
+  padding: 14px 22px;
+  font-size: 15px;
+}
+
+.btn--primary {
+  background: var(--brand-primary);
+  color: var(--text-on-dark);
+}
+
+.btn--primary:hover {
+  background: var(--brand-secondary);
+}
+
+.btn--secondary {
+  background: var(--brand-secondary);
+  color: var(--text-on-dark);
+}
+
+.btn--secondary:hover {
+  background: var(--navy-700);
+}
+
+.btn--outline {
+  border-color: var(--border-subtle);
+  background: transparent;
+  color: var(--brand-primary);
+}
+
+.btn--outline:hover {
+  background: var(--bg-highlight);
+}
+
+/* Variantes para secciones de fondo azul. */
+.btn--on-dark {
+  background: var(--white);
+  color: var(--brand-primary);
+}
+
+.btn--on-dark:hover {
+  background: var(--bg-highlight);
+}
+
+.btn--outline-on-dark {
+  border-color: rgb(255 255 255 / 0.5);
+  background: transparent;
+  color: var(--text-on-dark);
+}
+
+.btn--outline-on-dark:hover {
+  background: rgb(255 255 255 / 0.16);
+}
+
+/* Enlace de texto con subrayado de marca. */
+.link-arrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  align-self: flex-start;
+  padding-bottom: 3px;
+  border-bottom: 1px solid var(--brand-secondary);
+  font-family: var(--font-display);
+  font-weight: var(--fw-extrabold);
+  font-size: 14px;
+  color: var(--brand-primary);
+  white-space: nowrap;
+}
+
+.link-arrow:hover {
+  color: var(--brand-secondary);
+}
+
+.on-dark .link-arrow {
+  border-bottom-color: var(--navy-200);
+  color: var(--text-on-dark);
+}
+
+.on-dark .link-arrow:hover {
+  color: var(--navy-200);
+}
+
+/* ── Tarjetas ─────────────────────────────────────────────────────────── */
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap, 14px);
+  padding: var(--pad, clamp(28px, 3.2vw, 44px));
+  background: var(--bg, var(--white));
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+}
+
+.card--flat {
+  box-shadow: none;
+}
+
+.card--cream {
+  --bg: var(--bg-highlight);
+}
+
+.card--navy {
+  --bg: var(--bg-inverse);
+  color: var(--text-on-dark);
+}
+
+/* Tarjeta que además es enlace. */
+a.card {
+  color: var(--text-primary);
+}
+
+a.card:hover {
+  background: var(--bg-highlight);
+}
+
+a.card--navy:hover {
+  background: var(--navy-700);
+}
+
+/* ── Franja de datos ──────────────────────────────────────────────────── */
+
+.stat-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(190px, 100%), 1fr));
+}
+
+.stat {
+  padding: clamp(28px, 3.2vw, 44px) var(--gutter);
+  border-right: 1px solid var(--border-subtle);
+}
+
+.stat:last-child {
+  border-right: 0;
+}
+
+.stat__value {
+  display: block;
+  font-family: var(--font-display);
+  font-weight: var(--fw-black);
+  font-size: clamp(32px, 4vw, 48px);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--brand-primary);
+}
+
+.stat__label {
+  display: block;
+  margin-top: 8px;
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-soft);
+}
+
+.on-dark .stat {
+  border-right-color: var(--border-inverse);
+}
+
+.on-dark .stat__value {
+  color: var(--text-on-dark);
+}
+
+.on-dark .stat__label {
+  color: var(--text-on-dark-muted);
+}
+
+/* En móvil el borde vertical no separa nada: pasa a horizontal. */
+@media (max-width: 640px) {
+  .stat {
+    border-right: 0;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .stat:last-child {
+    border-bottom: 0;
+  }
+
+  .on-dark .stat {
+    border-bottom-color: var(--border-inverse);
+  }
+}
+
+/* ── Listas con check y filas numeradas ───────────────────────────────── */
+
+.check-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.check-list__item {
+  display: flex;
+  gap: 14px;
+  padding: 14px 0;
+  border-top: 1px solid var(--border-subtle);
+  font-size: 15px;
+  font-weight: var(--fw-semibold);
+}
+
+.check-list__item:last-child {
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.check-list__item svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: var(--brand-secondary);
+}
+
+.on-dark .check-list__item {
+  border-color: var(--border-inverse);
+}
+
+.on-dark .check-list__item svg {
+  color: var(--navy-200);
+}
+
+.numbered-list {
+  display: grid;
+}
+
+.numbered-list__item {
+  display: grid;
+  grid-template-columns: 44px 1fr;
+  gap: 16px;
+  padding: 20px 0;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.numbered-list__item:last-child {
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.numbered-list__index {
+  font-family: var(--font-display);
+  font-weight: var(--fw-black);
+  font-size: 15px;
+  color: var(--brand-secondary);
+}
+
+.numbered-list__title {
+  display: block;
+  margin-bottom: 5px;
+  font-family: var(--font-display);
+  font-weight: var(--fw-extrabold);
+  font-size: 17px;
+  color: var(--brand-primary);
+}
+
+.numbered-list__text {
+  display: block;
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: var(--text-soft);
+}
+
+/* ── Grupos de botones ────────────────────────────────────────────────── */
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+/* ── Lista apilada de título + descripción ────────────────────────────── */
+
+/* Patrón repetido en las páginas de servicio: filas separadas por filetes,
+   con un rótulo en negrita y una explicación debajo. */
+.stack-list {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.stack-list__item {
+  padding: 18px 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.stack-list__title {
+  display: block;
+  margin-bottom: 5px;
+  font-family: var(--font-display);
+  font-weight: var(--fw-extrabold);
+  font-size: 16px;
+  color: var(--brand-primary);
+}
+
+.stack-list__text {
+  display: block;
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: var(--text-soft);
+}
+
+.on-dark .stack-list {
+  border-top-color: var(--border-inverse);
+}
+
+.on-dark .stack-list__item {
+  border-bottom-color: var(--border-inverse);
+}
+
+.on-dark .stack-list__title {
+  color: var(--text-on-dark);
+}
+
+.on-dark .stack-list__text {
+  color: var(--text-on-dark-muted);
+}
+
+/* ── Etiquetas de tecnología ──────────────────────────────────────────── */
+
+.tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tag {
+  padding: 9px 14px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  font-family: var(--font-display);
+  font-weight: var(--fw-bold);
+  font-size: 13.5px;
+  color: var(--brand-primary);
+}
+
+.on-dark .tag {
+  border-color: var(--border-inverse-strong);
+  color: var(--text-on-dark);
+}
+
+/* Etiqueta pequeña, para clasificar tarjetas de caso. */
+.tag--sm {
+  padding: 6px 10px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-sans);
+  font-weight: var(--fw-semibold);
+  font-size: 12.5px;
+  color: var(--text-soft);
+}
+
+/* ── Cifras pequeñas en tarjeta ───────────────────────────────────────── */
+
+.mini-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(130px, 100%), 1fr));
+  gap: clamp(18px, 2vw, 26px);
+}
+
+.mini-stat {
+  padding: 18px;
+  background: var(--white);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+}
+
+.mini-stat__value {
+  display: block;
+  font-family: var(--font-display);
+  font-weight: var(--fw-black);
+  font-size: 26px;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--brand-primary);
+}
+
+.mini-stat__label {
+  display: block;
+  margin-top: 6px;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-soft);
+}

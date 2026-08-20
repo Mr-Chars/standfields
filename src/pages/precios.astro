@@ -1,0 +1,711 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Section from '@/components/ui/Section.astro';
+import Button from '@/components/ui/Button.astro';
+import Icon from '@/components/ui/Icon.astro';
+import Faq from '@/components/ui/Faq.astro';
+import PageHero from '@/components/sections/PageHero.astro';
+import CtaSection from '@/components/sections/CtaSection.astro';
+import { ROUTES } from '@/config/routes';
+import { CONTACT, WHATSAPP } from '@/config/site';
+import { breadcrumbSchema, faqSchema } from '@/lib/structured-data';
+import {
+  billingNote,
+  comparison,
+  faq,
+  intro,
+  planNote,
+  plans,
+  shopifyPricing,
+  views,
+} from '@/data/precios';
+
+const crumbs = [{ label: 'Precios' }];
+const path = ROUTES.precios;
+const planNames = ['Gratis', 'Taller', 'Pro'];
+---
+
+<BaseLayout
+  active="precios"
+  path={path}
+  title="Planes y precios"
+  description="Tres planes de suscripción para Naix, desde una versión gratuita, y rangos por proyecto para los servicios de Shopify. Precios en soles, sin permanencia."
+  structuredData={[breadcrumbSchema(crumbs, path), faqSchema(faq)]}
+>
+  <PageHero
+    crumbs={crumbs}
+    eyebrow={intro.eyebrow}
+    title={intro.title}
+    lead={intro.lead}
+    layout="split"
+    titleMeasure="16ch"
+  />
+
+  {/* Selector entre las dos formas de cobrar */}
+  <Section tone="cream" hairline space="sm" ariaLabelledby="elegir">
+    <span class="eyebrow">Empieza por aquí</span>
+    <h2 class="section-title chooser__title" id="elegir">¿Qué precios quieres ver?</h2>
+    <div class="grid-auto" style="--min: 300px">
+      {
+        views.map((view, index) => (
+          <button
+            type="button"
+            class="chooser"
+            data-view-toggle={view.id}
+            aria-pressed={index === 0 ? 'true' : 'false'}
+            aria-controls={`vista-${view.id}`}
+          >
+            <span class="chooser__kicker">{view.kicker}</span>
+            <span class="chooser__title-text">{view.title}</span>
+            <span class="chooser__text">{view.text}</span>
+            <span class="chooser__cta">
+              {view.cta}
+              <Icon name="arrow-right" size={15} />
+            </span>
+            <span class="chooser__badge">Viendo ahora</span>
+          </button>
+        ))
+      }
+    </div>
+  </Section>
+
+  {/* ── Vista Naix ──────────────────────────────────────────────────── */}
+  <div id="vista-saas" data-view="saas">
+    <Section hairline ariaLabelledby="planes-saas">
+      <span class="eyebrow">01 — Naix, software para talleres</span>
+      <div class="section-head">
+        <h2 class="section-title" id="planes-saas" style="max-width: 20ch">
+          Tres planes según el tamaño del taller
+        </h2>
+        <div class="billing">
+          <div class="billing__switch" role="group" aria-label="Periodicidad de pago">
+            <button type="button" data-billing="monthly" aria-pressed="true">Mensual</button>
+            <button type="button" data-billing="yearly" aria-pressed="false">Anual</button>
+          </div>
+          <p class="billing__note">{billingNote}</p>
+        </div>
+      </div>
+
+      <ul class="grid-auto" style="--min: 268px; --gap: clamp(18px, 2vw, 26px)">
+        {
+          plans.map((plan) => (
+            <li class:list={['card price-card', plan.featured && 'price-card--featured on-dark']}>
+              {plan.badge && <span class="price-card__badge">{plan.badge}</span>}
+              <span class="price-card__tier">{plan.tier}</span>
+
+              <div>
+                {/* Ambos precios se pintan en el HTML; el conmutador sólo cambia
+                    cuál está visible, así que la página funciona sin JavaScript. */}
+                <p class="price-card__price" data-period="monthly">
+                  {plan.monthly.price}
+                  {plan.monthly.unit && <span class="price-card__unit">{plan.monthly.unit}</span>}
+                </p>
+                <p class="price-card__price" data-period="yearly" hidden>
+                  {plan.yearly.price}
+                  {plan.yearly.unit && <span class="price-card__unit">{plan.yearly.unit}</span>}
+                </p>
+                <p class="price-card__note" data-period="monthly">{plan.monthly.note}</p>
+                <p class="price-card__note" data-period="yearly" hidden>
+                  {plan.yearly.note}
+                </p>
+              </div>
+
+              <p class="note">{plan.text}</p>
+
+              <dl class="limits">
+                {plan.limits.map((limit) => (
+                  <div class="limits__row">
+                    <dt>{limit.label}</dt>
+                    <dd>{limit.value}</dd>
+                  </div>
+                ))}
+              </dl>
+
+              {plan.extras && (
+                <ul class="extras">
+                  {plan.extras.map((extra) => (
+                    <li>
+                      <Icon name="check" size={16} />
+                      <span>{extra}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+
+              <Button
+                href={plan.cta.href}
+                variant={plan.featured ? 'secondary' : 'outline'}
+                iconAfter={plan.featured ? 'arrow-right' : undefined}
+                class="price-card__cta"
+              >
+                {plan.cta.label}
+              </Button>
+            </li>
+          ))
+        }
+      </ul>
+
+      <p class="note plan-note">{planNote}</p>
+    </Section>
+
+    {/* 02 — Comparación */}
+    <Section tone="cream" hairline ariaLabelledby="comparacion">
+      <span class="eyebrow">02 — Comparación</span>
+      <h2 class="section-title chooser__title" id="comparacion">
+        Funcionalidades y límites de cada plan
+      </h2>
+      <div class="table-scroll" tabindex="0" role="region" aria-labelledby="comparacion">
+        <table>
+          <caption class="visually-hidden">
+            Comparación de funcionalidades y límites entre los planes Gratis, Taller y Pro
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">Funcionalidad</th>
+              {planNames.map((name) => <th scope="col">{name}</th>)}
+            </tr>
+          </thead>
+          {
+            comparison.map((block) => (
+              <tbody>
+                <tr class="table-group">
+                  <th scope="colgroup" colspan={4}>
+                    {block.group}
+                  </th>
+                </tr>
+                {block.rows.map((row) => (
+                  <tr>
+                    <th scope="row">{row.label}</th>
+                    {row.values.map((value, index) => (
+                      <td>
+                        <span class:list={[value === '—' && 'is-absent']}>
+                          {value === '—' ? (
+                            <>
+                              <span aria-hidden="true">—</span>
+                              <span class="visually-hidden">
+                                No incluido en el plan {planNames[index]}
+                              </span>
+                            </>
+                          ) : (
+                            value
+                          )}
+                        </span>
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            ))
+          }
+        </table>
+      </div>
+    </Section>
+  </div>
+
+  {/* ── Vista Shopify ──────────────────────────────────────────────── */}
+  <div id="vista-shopify" data-view="shopify" hidden>
+    <Section hairline ariaLabelledby="precios-shopify">
+      <span class="eyebrow">03 — Servicios Shopify</span>
+      <div class="grid-auto" style="--min: 300px; --gap: clamp(28px, 4vw, 56px); --align: start">
+        <h2 class="section-title" id="precios-shopify" style="max-width: 20ch">
+          {shopifyPricing.title}
+        </h2>
+        <p class="prose measure" style="--measure: 52ch">{shopifyPricing.text}</p>
+      </div>
+
+      <ul class="grid-auto shopify-grid" style="--min: 268px">
+        {
+          shopifyPricing.items.map((item) => (
+            <li>
+              <a class="card shopify-card" href={item.href}>
+                <span class="shopify-card__tier">{item.title}</span>
+                <span class="shopify-card__range">{item.range}</span>
+                <span class="note">{item.text}</span>
+                <span class="shopify-card__more">
+                  Ver alcance
+                  <Icon name="arrow-right" size={15} />
+                </span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </Section>
+  </div>
+
+  {/* 04 — Sobre el pago */}
+  <Section tone="cream" hairline ariaLabelledby="faq-precios">
+    <div class="grid-auto" style="--min: 300px; --gap: clamp(28px, 4vw, 64px); --align: start">
+      <div>
+        <span class="eyebrow">04 — Sobre el pago</span>
+        <h2 class="section-title" id="faq-precios" style="max-width: 16ch">
+          Preguntas sobre facturación
+        </h2>
+      </div>
+      <Faq items={faq} class="faq__list" />
+    </div>
+  </Section>
+
+  <CtaSection
+    title="¿Aún no sabes qué plan te sirve?"
+    text="Escríbenos cuántas órdenes atiendes por semana y cuántas personas trabajan en el taller. Te recomendamos uno en el mismo chat."
+    primary={{
+      label: `WhatsApp ${CONTACT.phoneDisplay}`,
+      href: WHATSAPP.software,
+      icon: 'whatsapp',
+      external: true,
+    }}
+    secondary={{ label: 'Ver el producto en detalle', href: ROUTES.softwareTaller }}
+  />
+</BaseLayout>
+
+<style>
+  .chooser__title {
+    margin-bottom: clamp(28px, 4vw, 44px);
+    max-width: 24ch;
+  }
+
+  /* ── Selector de vista ──────────────────────────────────────────────── */
+
+  .chooser {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    padding: clamp(26px, 3vw, 38px);
+    background: var(--white);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    text-align: left;
+    cursor: pointer;
+    transition: var(--transition-color);
+  }
+
+  .chooser[aria-pressed='true'] {
+    background: var(--bg-inverse);
+    border-color: var(--brand-primary);
+    color: var(--text-on-dark);
+  }
+
+  .chooser__kicker {
+    font-size: 11.5px;
+    font-weight: var(--fw-extrabold);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-soft);
+  }
+
+  .chooser[aria-pressed='true'] .chooser__kicker {
+    color: var(--navy-200);
+  }
+
+  .chooser__title-text {
+    font-family: var(--font-display);
+    font-weight: var(--fw-extrabold);
+    font-size: clamp(20px, 2.2vw, 26px);
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    color: var(--brand-primary);
+  }
+
+  .chooser[aria-pressed='true'] .chooser__title-text {
+    color: var(--text-on-dark);
+  }
+
+  .chooser__text {
+    font-size: 14.5px;
+    line-height: 1.6;
+    color: var(--text-soft);
+  }
+
+  .chooser[aria-pressed='true'] .chooser__text {
+    color: var(--text-on-dark-soft);
+  }
+
+  .chooser__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 6px;
+    font-family: var(--font-display);
+    font-weight: var(--fw-extrabold);
+    font-size: 14px;
+    color: var(--brand-secondary);
+  }
+
+  .chooser[aria-pressed='true'] .chooser__cta {
+    color: var(--white);
+  }
+
+  .chooser__badge {
+    display: none;
+    margin-top: 4px;
+    padding: 4px 10px;
+    background: var(--navy-200);
+    border-radius: var(--radius-pill);
+    font-size: 10.5px;
+    font-weight: var(--fw-extrabold);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--brand-primary);
+  }
+
+  .chooser[aria-pressed='true'] .chooser__badge {
+    display: inline-block;
+  }
+
+  /* ── Conmutador mensual / anual ─────────────────────────────────────── */
+
+  .section-head {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin-bottom: clamp(26px, 4vw, 40px);
+  }
+
+  .billing {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .billing__switch {
+    display: inline-flex;
+    padding: 4px;
+    background: var(--bg-highlight);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+  }
+
+  .billing__switch button {
+    padding: 8px 18px;
+    min-height: 36px;
+    background: transparent;
+    border: 0;
+    border-radius: var(--radius-sm);
+    font-family: var(--font-display);
+    font-weight: var(--fw-bold);
+    font-size: 13.5px;
+    color: var(--text-soft);
+    cursor: pointer;
+    transition: var(--transition-color);
+  }
+
+  .billing__switch button[aria-pressed='true'] {
+    background: var(--white);
+    color: var(--brand-primary);
+    box-shadow: var(--shadow-card);
+  }
+
+  .billing__note {
+    font-size: 12.5px;
+    color: var(--text-soft);
+  }
+
+  /* ── Tarjeta de plan ────────────────────────────────────────────────── */
+
+  .price-card {
+    position: relative;
+    --gap: 16px;
+    --pad: clamp(24px, 3vw, 34px);
+    height: 100%;
+  }
+
+  .price-card--featured {
+    --bg: var(--bg-inverse);
+    border-color: var(--brand-primary);
+    box-shadow: 0 1px 2px rgb(16 37 66 / 0.08), 0 14px 34px rgb(16 37 66 / 0.16);
+  }
+
+  .price-card__badge {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    padding: 5px 10px;
+    background: var(--navy-200);
+    border-radius: var(--radius-pill);
+    color: var(--brand-primary);
+    font-size: 11px;
+    font-weight: var(--fw-extrabold);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .price-card__tier {
+    font-size: 11.5px;
+    font-weight: var(--fw-extrabold);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-soft);
+  }
+
+  .price-card--featured .price-card__tier {
+    color: var(--navy-200);
+  }
+
+  .price-card__price {
+    font-family: var(--font-display);
+    font-weight: var(--fw-black);
+    font-size: clamp(30px, 3.4vw, 40px);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    color: var(--brand-primary);
+  }
+
+  .price-card--featured .price-card__price {
+    color: var(--text-on-dark);
+  }
+
+  .price-card__unit {
+    font-size: 14px;
+    font-weight: var(--fw-semibold);
+    letter-spacing: 0;
+    color: var(--text-soft);
+  }
+
+  .price-card--featured .price-card__unit {
+    color: rgb(255 255 255 / 0.7);
+  }
+
+  .price-card__note {
+    margin-top: 6px;
+    font-size: 13px;
+    color: var(--text-soft);
+  }
+
+  .price-card--featured .price-card__note {
+    color: var(--navy-200);
+  }
+
+  .limits {
+    display: flex;
+    flex-direction: column;
+    border-top: 1px solid var(--border-subtle);
+  }
+
+  .price-card--featured .limits {
+    border-top-color: var(--border-inverse);
+  }
+
+  .limits__row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 13.5px;
+  }
+
+  .price-card--featured .limits__row {
+    border-bottom-color: var(--border-inverse);
+  }
+
+  .limits__row dt {
+    color: var(--text-soft);
+  }
+
+  .price-card--featured .limits__row dt {
+    color: var(--text-on-dark-soft);
+  }
+
+  .limits__row dd {
+    margin: 0;
+    font-weight: var(--fw-bold);
+    color: var(--brand-primary);
+    text-align: right;
+  }
+
+  .price-card--featured .limits__row dd {
+    color: var(--text-on-dark);
+  }
+
+  .extras {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-size: 13.5px;
+  }
+
+  .extras li {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+
+  .extras :global(svg) {
+    margin-top: 2px;
+    color: var(--brand-secondary);
+  }
+
+  .price-card--featured .extras :global(svg) {
+    color: var(--navy-200);
+  }
+
+  .price-card :global(.price-card__cta) {
+    margin-top: auto;
+    align-self: stretch;
+  }
+
+  .plan-note {
+    margin-top: 20px;
+    max-width: 60ch;
+  }
+
+  /* ── Tabla comparativa ──────────────────────────────────────────────── */
+
+  /* La tabla desborda en móvil: se le da su propio scroll y `tabindex` para que
+     también se pueda recorrer con teclado. */
+  .table-scroll {
+    overflow-x: auto;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-lg);
+    background: var(--white);
+  }
+
+  table {
+    width: 100%;
+    min-width: 640px;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+
+  thead th {
+    padding: 14px 18px;
+    background: var(--bg-inverse);
+    color: var(--text-on-dark);
+    font-family: var(--font-display);
+    font-weight: var(--fw-extrabold);
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-align: left;
+  }
+
+  thead th:not(:first-child) {
+    text-align: center;
+  }
+
+  .table-group th {
+    padding: 12px 18px;
+    background: var(--bg-highlight);
+    font-family: var(--font-sans);
+    font-weight: var(--fw-extrabold);
+    font-size: 11.5px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--brand-secondary);
+    text-align: left;
+  }
+
+  tbody tr:not(.table-group) th {
+    padding: 13px 18px;
+    font-weight: var(--fw-semibold);
+    font-size: 14px;
+    color: var(--text-primary);
+    text-align: left;
+  }
+
+  td {
+    padding: 13px 18px;
+    text-align: center;
+    color: var(--text-body);
+    border-top: 1px solid var(--border-subtle);
+  }
+
+  tbody tr:not(.table-group) th {
+    border-top: 1px solid var(--border-subtle);
+  }
+
+  /* El guion de «no incluido» necesita contraste suficiente por sí solo: en el
+     diseño original quedaba en 2.9:1 sobre el fondo crema. */
+  .is-absent {
+    color: var(--text-soft);
+  }
+
+  /* ── Tarjetas de precio Shopify ─────────────────────────────────────── */
+
+  .shopify-grid {
+    margin-top: clamp(28px, 4vw, 44px);
+  }
+
+  .shopify-card {
+    --gap: 10px;
+    --pad: clamp(24px, 3vw, 34px);
+    height: 100%;
+  }
+
+  .shopify-card__tier {
+    font-size: 11.5px;
+    font-weight: var(--fw-extrabold);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-soft);
+  }
+
+  .shopify-card__range {
+    font-family: var(--font-display);
+    font-weight: var(--fw-black);
+    font-size: clamp(24px, 2.6vw, 30px);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    color: var(--brand-primary);
+  }
+
+  .shopify-card__more {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: auto;
+    padding-top: 10px;
+    font-family: var(--font-display);
+    font-weight: var(--fw-extrabold);
+    font-size: 14px;
+    color: var(--brand-secondary);
+  }
+
+  .faq__list {
+    border-top: 1px solid var(--border-subtle);
+  }
+</style>
+
+<script>
+  /**
+   * Los dos conmutadores de la página de precios.
+   *
+   * Ambos son mejoras progresivas: sin JavaScript se ve la vista de Naix con
+   * los precios mensuales, que es lo que necesita la mayoría, y la vista de
+   * Shopify sigue accesible desde las páginas de servicio.
+   */
+
+  /* Vista: Naix o Shopify. */
+  const viewButtons = document.querySelectorAll<HTMLButtonElement>('[data-view-toggle]');
+  const viewPanels = document.querySelectorAll<HTMLElement>('[data-view]');
+
+  for (const button of viewButtons) {
+    button.addEventListener('click', () => {
+      const target = button.dataset.viewToggle;
+      for (const panel of viewPanels) panel.hidden = panel.dataset.view !== target;
+      for (const other of viewButtons) {
+        other.setAttribute('aria-pressed', String(other.dataset.viewToggle === target));
+      }
+    });
+  }
+
+  /* Periodicidad: mensual o anual. */
+  const billingButtons = document.querySelectorAll<HTMLButtonElement>('[data-billing]');
+  const periodNodes = document.querySelectorAll<HTMLElement>('[data-period]');
+
+  for (const button of billingButtons) {
+    button.addEventListener('click', () => {
+      const period = button.dataset.billing;
+      for (const node of periodNodes) node.hidden = node.dataset.period !== period;
+      for (const other of billingButtons) {
+        other.setAttribute('aria-pressed', String(other.dataset.billing === period));
+      }
+    });
+  }
+</script>

@@ -1,0 +1,188 @@
+---
+import Breadcrumbs, { type Crumb } from '@/components/ui/Breadcrumbs.astro';
+import Button from '@/components/ui/Button.astro';
+import type { IconName } from '@/components/ui/Icon.astro';
+
+/**
+ * Cabecera de página interna: miga de pan, antetítulo, H1, entradilla y
+ * acciones. Se reutiliza en las nueve páginas internas.
+ *
+ * El diseño usa tres repartos:
+ *  - `stacked`: todo en una columna.
+ *  - `aside`:   titular, entradilla y acciones a la izquierda; imagen o panel a
+ *               la derecha (fichas de servicio y de producto).
+ *  - `split`:   sólo el titular a la izquierda; entradilla y acciones a la
+ *               derecha (índices y páginas de contenido).
+ *
+ * Debajo puede colgar una franja a ancho completo (`slot="strip"`): la barra de
+ * datos de las fichas de servicio o los filtros del portafolio.
+ */
+interface Props {
+  crumbs: Crumb[];
+  eyebrow?: string;
+  title: string;
+  lead: string;
+  /** Segundo párrafo de entradilla, cuando el diseño lo pide. */
+  leadExtra?: string;
+  /** Nota pequeña bajo las acciones (letra chica de la prueba gratuita). */
+  footnote?: string;
+  tone?: 'light' | 'navy';
+  layout?: 'stacked' | 'aside' | 'split';
+  /** Ancho máximo del titular, en caracteres, para respetar el corte del diseño. */
+  titleMeasure?: string;
+  actions?: {
+    label: string;
+    href: string;
+    icon?: IconName;
+    external?: boolean;
+    variant?: 'primary' | 'secondary' | 'outline' | 'on-dark' | 'outline-on-dark';
+  }[];
+}
+
+const {
+  crumbs,
+  eyebrow,
+  title,
+  lead,
+  leadExtra,
+  footnote,
+  tone = 'light',
+  layout = 'stacked',
+  titleMeasure = '18ch',
+  actions = [],
+} = Astro.props;
+
+const isDark = tone === 'navy';
+---
+
+<section class:list={['page-hero', isDark && 'page-hero--navy on-dark']}>
+  <div class="container">
+    <Breadcrumbs items={crumbs} />
+
+    {eyebrow && <span class="eyebrow page-hero__eyebrow">{eyebrow}</span>}
+
+    <div class:list={['page-hero__body', `page-hero__body--${layout}`]}>
+      <div class="page-hero__main">
+        <h1 class="page-title" style={`max-width: ${titleMeasure}`}>{title}</h1>
+
+        <div class="page-hero__copy">
+          <p class="page-hero__lead">{lead}</p>
+          {leadExtra && <p class="page-hero__lead">{leadExtra}</p>}
+
+          {
+            actions.length > 0 && (
+              <div class="actions">
+                {actions.map((action, index) => (
+                  <Button
+                    href={action.href}
+                    size="lg"
+                    variant={
+                      action.variant ??
+                      (index === 0 ? 'secondary' : isDark ? 'outline-on-dark' : 'outline')
+                    }
+                    iconBefore={action.icon}
+                    iconAfter={action.icon || index > 0 ? undefined : 'arrow-right'}
+                    external={action.external}
+                  >
+                    {action.label}
+                  </Button>
+                ))}
+              </div>
+            )
+          }
+
+          {footnote && <p class="page-hero__footnote">{footnote}</p>}
+        </div>
+      </div>
+
+      {layout === 'aside' && (
+        <div class="page-hero__aside">
+          <slot name="aside" />
+        </div>
+      )}
+    </div>
+  </div>
+
+  <slot name="strip" />
+</section>
+
+<style>
+  .page-hero {
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .page-hero > .container {
+    padding-bottom: clamp(48px, 6vw, 84px);
+  }
+
+  .page-hero--navy {
+    border-bottom-color: var(--border-inverse);
+  }
+
+  .page-hero__eyebrow {
+    margin: clamp(28px, 4vw, 48px) 0 18px;
+  }
+
+  .page-hero--navy .page-hero__eyebrow {
+    color: var(--text-on-dark-muted);
+  }
+
+  .page-title {
+    margin-bottom: 20px;
+  }
+
+  .page-hero__lead {
+    margin-bottom: 28px;
+    max-width: 46ch;
+    font-size: clamp(15px, 1.8vw, 19px);
+    line-height: 1.6;
+    color: var(--text-body);
+  }
+
+  .page-hero--navy .page-hero__lead {
+    color: rgb(255 255 255 / 0.82);
+  }
+
+  /* Sin acciones el margen inferior de la entradilla sobra. */
+  .page-hero__copy > .page-hero__lead:last-child {
+    margin-bottom: 0;
+  }
+
+  .page-hero__footnote {
+    margin-top: 18px;
+    font-size: 13px;
+    color: var(--text-soft);
+  }
+
+  .page-hero--navy .page-hero__footnote {
+    color: rgb(255 255 255 / 0.6);
+  }
+
+  /* ── Repartos ───────────────────────────────────────────────────────── */
+
+  .page-hero__aside {
+    min-width: 0;
+  }
+
+  @media (min-width: 760px) {
+    /* Texto a la izquierda, imagen a la derecha. */
+    .page-hero__body--aside {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: clamp(28px, 4vw, 60px);
+      align-items: end;
+    }
+
+    /* Titular a la izquierda, entradilla y acciones a la derecha. */
+    .page-hero__body--split .page-hero__main {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: clamp(28px, 4vw, 64px);
+      align-items: end;
+    }
+
+    .page-hero__body--split .page-title {
+      margin-bottom: 0;
+    }
+  }
+</style>

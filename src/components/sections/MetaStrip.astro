@@ -1,0 +1,99 @@
+---
+/**
+ * Franja de cuatro datos clave (inversión, plazo, modalidad, entrega).
+ *
+ * Se usa como cierre de las cabeceras de servicio. Semánticamente es una lista
+ * de definiciones: cada celda es un par etiqueta/valor, no un titular suelto.
+ */
+interface Props {
+  items: { label: string; value: string }[];
+  tone?: 'navy' | 'cream';
+}
+
+const { items, tone = 'navy' } = Astro.props;
+---
+
+<div class:list={['meta-strip', tone === 'navy' && 'meta-strip--navy on-dark']}>
+  <dl class="container meta-strip__grid">
+    {
+      items.map((item) => (
+        <div class="meta-strip__cell">
+          <dt>{item.label}</dt>
+          <dd>{item.value}</dd>
+        </div>
+      ))
+    }
+  </dl>
+</div>
+
+<style>
+  .meta-strip {
+    border-top: 1px solid var(--border-subtle);
+    background: var(--bg-highlight);
+  }
+
+  .meta-strip--navy {
+    background: var(--bg-inverse);
+    color: var(--text-on-dark);
+  }
+
+  .meta-strip__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr));
+    padding-inline: 0;
+  }
+
+  .meta-strip__cell {
+    padding: clamp(26px, 3vw, 38px) var(--gutter);
+    border-right: 1px solid var(--border-subtle);
+  }
+
+  .meta-strip__cell:last-child {
+    border-right: 0;
+  }
+
+  .meta-strip--navy .meta-strip__cell {
+    border-right-color: var(--border-inverse-strong);
+  }
+
+  dt {
+    margin-bottom: 8px;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-soft);
+  }
+
+  .meta-strip--navy dt {
+    color: var(--text-on-dark-muted);
+  }
+
+  dd {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: var(--fw-black);
+    font-size: clamp(24px, 3vw, 34px);
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--brand-primary);
+  }
+
+  .meta-strip--navy dd {
+    color: var(--text-on-dark);
+  }
+
+  @media (max-width: 640px) {
+    .meta-strip__cell {
+      border-right: 0;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .meta-strip__cell:last-child {
+      border-bottom: 0;
+    }
+
+    .meta-strip--navy .meta-strip__cell {
+      border-bottom-color: var(--border-inverse-strong);
+    }
+  }
+</style>

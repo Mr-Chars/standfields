@@ -1,0 +1,96 @@
+---
+/**
+ * Acordeón de preguntas frecuentes.
+ *
+ * Construido sobre <details>/<summary> nativos: se abre y se cierra sin
+ * JavaScript, funciona con teclado y con lector de pantalla desde el primer
+ * pintado, y sigue siendo texto indexable aunque esté plegado.
+ *
+ * El icono gira de «+» a «×» con el estado abierto, usando sólo CSS.
+ */
+export interface FaqItem {
+  question: string;
+  answer: string;
+}
+
+interface Props {
+  items: FaqItem[];
+  class?: string;
+}
+
+const { items, class: className } = Astro.props;
+---
+
+<div class:list={['faq', className]}>
+  {
+    items.map((item) => (
+      <details class="faq__item">
+        <summary>
+          <span>{item.question}</span>
+          <svg
+            class="faq__icon"
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+            stroke-linecap="square"
+            aria-hidden="true"
+          >
+            <path d="M12 5v14M5 12h14" />
+          </svg>
+        </summary>
+        <p>{item.answer}</p>
+      </details>
+    ))
+  }
+</div>
+
+<style>
+  .faq__item {
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 20px 0;
+    cursor: pointer;
+    list-style: none;
+    font-family: var(--font-display);
+    font-weight: var(--fw-extrabold);
+    font-size: 16.5px;
+    line-height: 1.35;
+    color: var(--brand-primary);
+  }
+
+  /* Safari pinta su propio triángulo si no se desactiva explícitamente. */
+  summary::-webkit-details-marker {
+    display: none;
+  }
+
+  summary:hover {
+    color: var(--brand-secondary);
+  }
+
+  .faq__icon {
+    flex-shrink: 0;
+    color: var(--brand-secondary);
+    transition: transform var(--dur-base) var(--ease-standard);
+  }
+
+  .faq__item[open] .faq__icon {
+    transform: rotate(45deg);
+  }
+
+  p {
+    margin: 0 0 20px;
+    max-width: 56ch;
+    font-size: 15px;
+    line-height: var(--lh-body);
+    color: var(--text-body);
+  }
+</style>

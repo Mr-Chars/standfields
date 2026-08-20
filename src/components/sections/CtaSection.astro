@@ -1,0 +1,83 @@
+---
+import Section from '@/components/ui/Section.astro';
+import Button from '@/components/ui/Button.astro';
+import type { IconName } from '@/components/ui/Icon.astro';
+
+/**
+ * Bloque de cierre azul que remata las diez páginas.
+ *
+ * Es el mismo patrón en todas: antetítulo opcional, titular grande, un párrafo
+ * y dos acciones. Centralizarlo evita repetir el maquetado diez veces y hace
+ * que un ajuste de ritmo o de contraste se aplique al sitio entero.
+ */
+export interface CtaAction {
+  label: string;
+  href: string;
+  icon?: IconName;
+  external?: boolean;
+}
+
+interface Props {
+  eyebrow?: string;
+  title: string;
+  text: string;
+  primary: CtaAction;
+  secondary?: CtaAction;
+}
+
+const { eyebrow, title, text, primary, secondary } = Astro.props;
+---
+
+<Section tone="navy" space="lg" class="cta">
+  {eyebrow && <span class="eyebrow cta__eyebrow">{eyebrow}</span>}
+  <h2 class="cta__title">{title}</h2>
+  <p class="cta__text">{text}</p>
+  <div class="actions">
+    <Button
+      href={primary.href}
+      variant="on-dark"
+      size="lg"
+      iconBefore={primary.icon}
+      iconAfter={primary.icon ? undefined : 'arrow-right'}
+      external={primary.external}
+    >
+      {primary.label}
+    </Button>
+    {
+      secondary && (
+        <Button
+          href={secondary.href}
+          variant="outline-on-dark"
+          size="lg"
+          iconBefore={secondary.icon}
+          external={secondary.external}
+        >
+          {secondary.label}
+        </Button>
+      )
+    }
+  </div>
+</Section>
+
+<style>
+  .cta__eyebrow {
+    margin-bottom: 20px;
+    color: rgb(255 255 255 / 0.8);
+  }
+
+  .cta__title {
+    margin: 0 0 22px;
+    max-width: 20ch;
+    font-size: clamp(32px, 6vw, 72px);
+    line-height: 0.98;
+    letter-spacing: -0.03em;
+  }
+
+  .cta__text {
+    margin: 0 0 34px;
+    max-width: 46ch;
+    font-size: clamp(15px, 1.7vw, 19px);
+    line-height: 1.55;
+    color: rgb(255 255 255 / 0.9);
+  }
+</style>

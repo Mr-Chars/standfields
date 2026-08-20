@@ -1,0 +1,69 @@
+---
+import Seo, { type SeoProps } from '@/components/Seo.astro';
+import SiteHeader from '@/components/SiteHeader.astro';
+import SiteFooter from '@/components/SiteFooter.astro';
+import type { NavKey } from '@/config/routes';
+import { SITE } from '@/config/site';
+import { organizationSchema, websiteSchema } from '@/lib/structured-data';
+
+import '@/styles/global.css';
+
+/**
+ * Estructura común a todas las páginas: <head>, cabecera, región principal y pie.
+ *
+ * Cada página aporta sus metadatos y sus bloques JSON-LD propios; los de
+ * organización y sitio web se emiten aquí una sola vez para no duplicarlos.
+ */
+interface Props extends SeoProps {
+  /** Sección activa en la navegación. */
+  active?: NavKey;
+}
+
+const { active, structuredData = [], ...seo } = Astro.props;
+---
+
+<!doctype html>
+<html lang={SITE.lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#102542" />
+    <meta name="generator" content={Astro.generator} />
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+
+    {/* Las dos fuentes se sirven del propio dominio; precargarlas evita el
+        salto de texto sin fuente en el primer pintado del titular y del cuerpo. */}
+    <link
+      rel="preload"
+      href="/fonts/archivo-latin.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="/fonts/manrope-latin.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+
+    <Seo {...seo} structuredData={[organizationSchema, websiteSchema, ...structuredData]} />
+  </head>
+
+  <body>
+    <a class="skip-link" href="#contenido">Saltar al contenido principal</a>
+
+    <SiteHeader active={active} />
+
+    <main id="contenido">
+      <slot />
+    </main>
+
+    <SiteFooter />
+  </body>
+</html>

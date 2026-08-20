@@ -1,0 +1,436 @@
+---
+import { Image } from 'astro:assets';
+import logoMark from '@/assets/logo-mark.png';
+import Icon from '@/components/ui/Icon.astro';
+import { MAIN_NAV } from '@/data/navigation';
+import { ROUTES, type NavKey } from '@/config/routes';
+import { SITE, WHATSAPP } from '@/config/site';
+
+/**
+ * Cabecera fija del sitio.
+ *
+ * Se pinta completa en el HTML (menú de escritorio y panel móvil a la vez) y es
+ * el CSS quien decide cuál se ve según el ancho, no JavaScript: así el menú
+ * correcto está presente desde el primer pintado y no hay salto de layout.
+ *
+ * El script progresivo solo añade tres cosas: abrir y cerrar el panel móvil,
+ * abrir el desplegable de Shopify al enfocarlo con teclado, y cerrarlo con Esc.
+ * Sin JavaScript, el desplegable sigue funcionando al pasar el ratón (CSS) y
+ * cada entrada del panel móvil es un enlace normal.
+ */
+interface Props {
+  /** Sección activa, para marcar el enlace con `aria-current`. */
+  active?: NavKey;
+}
+
+const { active } = Astro.props;
+---
+
+<header class="site-header">
+  <div class="site-header__bar container">
+    <a class="brand" href={ROUTES.home} aria-label={`${SITE.name} — ir a la portada`}>
+      <Image
+        src={logoMark}
+        alt=""
+        width={40}
+        height={45}
+        densities={[1, 2]}
+        loading="eager"
+        class="brand__mark"
+      />
+      <span class="brand__name">STANDFIELDS</span>
+    </a>
+
+    <nav class="primary-nav" aria-label="Navegación principal">
+      <ul>
+        {
+          MAIN_NAV.map((item) => (
+            <li class:list={['primary-nav__item', item.children && 'has-submenu']}>
+              <a
+                href={item.href}
+                class="primary-nav__link"
+                aria-current={item.key === active ? 'page' : undefined}
+              >
+                {item.label}
+                {item.children && <Icon name="chevron-down" size={13} />}
+              </a>
+
+              {item.children && (
+                <div class="submenu">
+                  <ul>
+                    {item.children.map((child) => (
+                      <li>
+                        <a href={child.href}>
+                          <span class="submenu__title">{child.label}</span>
+                          <span class="submenu__desc">{child.description}</span>
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <div class="site-header__actions">
+      <a
+        class="btn btn--outline header-cta header-cta--whatsapp"
+        href={WHATSAPP.general}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <Icon name="whatsapp" size={15} strokeWidth={2} />
+        <span>WhatsApp</span>
+        <span class="visually-hidden">(se abre en una pestaña nueva)</span>
+      </a>
+
+      <a class="btn btn--secondary header-cta" href={ROUTES.softwareTaller}>
+        <span>Prueba gratis</span>
+        <Icon name="arrow-right" size={15} />
+      </a>
+
+      <button
+        type="button"
+        class="menu-toggle"
+        aria-label="Abrir menú de navegación"
+        aria-expanded="false"
+        aria-controls="menu-movil"
+        data-menu-toggle
+      >
+        <Icon name="menu" size={20} class="menu-toggle__open" />
+        <Icon name="close" size={20} class="menu-toggle__close" />
+      </button>
+    </div>
+  </div>
+
+  <nav id="menu-movil" class="mobile-menu" aria-label="Navegación principal (móvil)" hidden>
+    <ul>
+      {
+        MAIN_NAV.map((item) => (
+          <>
+            <li>
+              <a
+                href={item.href}
+                class="mobile-menu__link"
+                aria-current={item.key === active ? 'page' : undefined}
+              >
+                {item.label}
+              </a>
+            </li>
+            {item.children?.map((child) => (
+              <li>
+                <a href={child.href} class="mobile-menu__link mobile-menu__link--child">
+                  {child.label}
+                </a>
+              </li>
+            ))}
+          </>
+        ))
+      }
+      <li>
+        <a href={ROUTES.contacto} class="mobile-menu__link mobile-menu__link--accent">
+          Contacto y WhatsApp
+        </a>
+      </li>
+    </ul>
+  </nav>
+</header>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 60;
+    background: var(--white);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .site-header__bar {
+    display: flex;
+    align-items: stretch;
+    justify-content: space-between;
+    gap: 24px;
+    min-height: 74px;
+  }
+
+  /* ── Marca ──────────────────────────────────────────────────────────── */
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    /* Puede encogerse en pantallas estrechas: es lo que evitaba que la barra
+       cupiera en 390 px en el diseño de referencia. */
+    min-width: 0;
+  }
+
+  .brand__mark {
+    width: 40px;
+    height: auto;
+    flex-shrink: 0;
+  }
+
+  .brand__name {
+    font-family: var(--font-display);
+    font-weight: var(--fw-black);
+    font-size: 19px;
+    letter-spacing: var(--ls-wordmark);
+    color: var(--brand-primary);
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  /* ── Navegación de escritorio ───────────────────────────────────────── */
+
+  .primary-nav {
+    display: none;
+    align-items: stretch;
+  }
+
+  .primary-nav > ul {
+    display: flex;
+    align-items: stretch;
+    gap: clamp(4px, 1.4vw, 22px);
+  }
+
+  .primary-nav__item {
+    position: relative;
+    display: flex;
+    align-items: stretch;
+  }
+
+  .primary-nav__link {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 0 2px;
+    font-family: var(--font-display);
+    font-weight: var(--fw-semibold);
+    font-size: 13.5px;
+    letter-spacing: 0.02em;
+    color: var(--brand-primary);
+    white-space: nowrap;
+  }
+
+  .primary-nav__link:hover {
+    color: var(--brand-secondary);
+  }
+
+  /* Subrayado grueso de la sección activa. */
+  .primary-nav__link[aria-current='page']::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -1px;
+    height: 4px;
+    background: var(--brand-primary);
+  }
+
+  /* ── Desplegable de Servicios Shopify ───────────────────────────────── */
+
+  .submenu {
+    position: absolute;
+    top: 100%;
+    left: -14px;
+    width: 272px;
+    background: var(--white);
+    border: 1px solid var(--border-subtle);
+    border-top: 0;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-dropdown);
+    overflow: hidden;
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      opacity var(--dur-fast) var(--ease-standard),
+      visibility var(--dur-fast) var(--ease-standard);
+  }
+
+  /* `:focus-within` abre el menú también con teclado, sin necesidad de script. */
+  .has-submenu:hover .submenu,
+  .has-submenu:focus-within .submenu {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .submenu a {
+    display: block;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--brand-primary);
+  }
+
+  .submenu li:last-child a {
+    border-bottom: 0;
+  }
+
+  .submenu a:hover {
+    background: var(--bg-highlight);
+  }
+
+  .submenu__title {
+    display: block;
+    font-family: var(--font-display);
+    font-weight: var(--fw-bold);
+    font-size: 14px;
+  }
+
+  .submenu__desc {
+    display: block;
+    margin-top: 2px;
+    font-size: 12px;
+    color: var(--text-soft);
+  }
+
+  /* ── Acciones ───────────────────────────────────────────────────────── */
+
+  .site-header__actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+
+  .header-cta {
+    min-height: 42px;
+    padding: 9px 14px;
+    font-size: 13.5px;
+    white-space: nowrap;
+  }
+
+  .header-cta--whatsapp {
+    display: none;
+  }
+
+  .menu-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--tap-target);
+    height: var(--tap-target);
+    background: transparent;
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    color: var(--brand-primary);
+    cursor: pointer;
+    transition: var(--transition-color);
+  }
+
+  .menu-toggle:hover {
+    background: var(--bg-highlight);
+  }
+
+  .menu-toggle__close {
+    display: none;
+  }
+
+  .menu-toggle[aria-expanded='true'] .menu-toggle__open {
+    display: none;
+  }
+
+  .menu-toggle[aria-expanded='true'] .menu-toggle__close {
+    display: block;
+  }
+
+  /* ── Panel móvil ────────────────────────────────────────────────────── */
+
+  .mobile-menu {
+    border-top: 1px solid var(--border-subtle);
+    background: var(--white);
+    max-height: calc(100dvh - 74px);
+    overflow-y: auto;
+  }
+
+  .mobile-menu__link {
+    display: block;
+    padding: 16px var(--gutter);
+    border-bottom: 1px solid var(--border-subtle);
+    font-family: var(--font-display);
+    font-weight: var(--fw-bold);
+    font-size: 16px;
+    color: var(--brand-primary);
+  }
+
+  .mobile-menu__link:hover,
+  .mobile-menu__link[aria-current='page'] {
+    background: var(--bg-highlight);
+  }
+
+  .mobile-menu__link--child {
+    padding-block: 13px;
+    padding-left: calc(var(--gutter) + 18px);
+    font-family: var(--font-sans);
+    font-weight: var(--fw-regular);
+    font-size: 14.5px;
+  }
+
+  .mobile-menu__link--accent {
+    border-bottom: 0;
+    color: var(--brand-secondary);
+  }
+
+  /* En pantallas muy estrechas el CTA cede el texto largo antes de desbordar. */
+  @media (max-width: 400px) {
+    .brand__name {
+      display: none;
+    }
+
+    .header-cta {
+      padding-inline: 12px;
+    }
+  }
+
+  /* ── Cambio a escritorio ────────────────────────────────────────────── */
+
+  @media (min-width: 1040px) {
+    .primary-nav,
+    .header-cta--whatsapp {
+      display: flex;
+    }
+
+    .menu-toggle,
+    .mobile-menu {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  /**
+   * Mejora progresiva de la cabecera.
+   * El menú móvil se pinta ya en el HTML con `hidden`; aquí solo se conmuta ese
+   * atributo y el `aria-expanded` del botón, que es lo que anuncia el estado.
+   */
+  const toggle = document.querySelector<HTMLButtonElement>('[data-menu-toggle]');
+  const panel = document.getElementById('menu-movil');
+
+  if (toggle && panel) {
+    const setOpen = (open: boolean) => {
+      toggle.setAttribute('aria-expanded', String(open));
+      toggle.setAttribute('aria-label', open ? 'Cerrar menú de navegación' : 'Abrir menú de navegación');
+      panel.hidden = !open;
+    };
+
+    toggle.addEventListener('click', () => {
+      setOpen(toggle.getAttribute('aria-expanded') !== 'true');
+    });
+
+    // Esc cierra el panel y devuelve el foco al botón que lo abrió.
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && toggle.getAttribute('aria-expanded') === 'true') {
+        setOpen(false);
+        toggle.focus();
+      }
+    });
+
+    // Si la ventana crece hasta el layout de escritorio, el panel sobra.
+    const desktop = window.matchMedia('(min-width: 1040px)');
+    desktop.addEventListener('change', (event) => {
+      if (event.matches) setOpen(false);
+    });
+  }
+</script>

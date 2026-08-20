@@ -1,0 +1,208 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Section from '@/components/ui/Section.astro';
+import ImagePlaceholder from '@/components/ui/ImagePlaceholder.astro';
+import PageHero from '@/components/sections/PageHero.astro';
+import CtaSection from '@/components/sections/CtaSection.astro';
+import { ROUTES } from '@/config/routes';
+import { CONTACT, WHATSAPP } from '@/config/site';
+import { breadcrumbSchema } from '@/lib/structured-data';
+import { founder, intro, numbers, rules } from '@/data/nosotros';
+
+const crumbs = [{ label: 'Nosotros' }];
+const path = ROUTES.nosotros;
+---
+
+<BaseLayout
+  active="nosotros"
+  path={path}
+  title="Nosotros"
+  description="Un equipo pequeño que entrega software terminado: alcance por escrito, entregas cada dos semanas y el código en tus manos al cierre del proyecto."
+  structuredData={[breadcrumbSchema(crumbs, path)]}
+>
+  <PageHero
+    crumbs={crumbs}
+    eyebrow={intro.eyebrow}
+    title={intro.title}
+    lead={intro.paragraphs[0]!}
+    leadExtra={intro.paragraphs[1]}
+    layout="split"
+    titleMeasure="14ch"
+  />
+
+  <Section hairline space="sm" ariaLabelledby="reglas">
+    <span class="eyebrow">01 — Cómo trabajamos</span>
+    <h2 class="section-title block-title" id="reglas">Cuatro reglas que no negociamos</h2>
+    <ol class="grid-auto" style="--min: 240px">
+      {
+        rules.map((rule, index) => (
+          <li class="card rule-card">
+            <span class="rule-card__index" aria-hidden="true">
+              {String(index + 1).padStart(2, '0')}
+            </span>
+            <h3 class="card-title" style="--fs: 19px">
+              {rule.title}
+            </h3>
+            <p class="note">{rule.text}</p>
+          </li>
+        ))
+      }
+    </ol>
+  </Section>
+
+  {/* 02 — Quién está detrás */}
+  <Section tone="cream" hairline ariaLabelledby="equipo">
+    <span class="eyebrow">02 — Quién está detrás</span>
+    <h2 class="section-title block-title" id="equipo">Quién va a trabajar en tu proyecto</h2>
+    <div class="grid-auto founder" style="--min: 260px; --gap: clamp(28px, 4vw, 56px); --align: start">
+      <ImagePlaceholder label={founder.portraitPlaceholder} ratio="3 / 4" class="founder__portrait" />
+      <div class="founder__body">
+        <p class="founder__name">{founder.name}</p>
+        <p class="founder__role">{founder.role}</p>
+        <p class="prose measure">{founder.bio}</p>
+        <dl class="founder__facts">
+          {
+            founder.facts.map((fact) => (
+              <div class="founder__fact">
+                <dt>{fact.label}</dt>
+                <dd>{fact.value}</dd>
+              </div>
+            ))
+          }
+        </dl>
+        <p class="note measure">{founder.note}</p>
+      </div>
+    </div>
+  </Section>
+
+  {/* 03 — En números */}
+  <Section hairline space="sm" ariaLabelledby="cifras">
+    <h2 class="eyebrow" id="cifras">03 — En números</h2>
+    <dl class="grid-auto" style="--min: 200px">
+      {
+        numbers.map((item) => (
+          <div class="card number-card">
+            <dt class="number-card__value">{item.value}</dt>
+            <dd class="number-card__label">{item.label}</dd>
+          </div>
+        ))
+      }
+    </dl>
+  </Section>
+
+  <CtaSection
+    title="Conversemos sin compromiso."
+    text="Una llamada de treinta minutos suele bastar para saber si podemos ayudarte y cuánto costaría."
+    primary={{
+      label: `WhatsApp ${CONTACT.phoneDisplay}`,
+      href: WHATSAPP.general,
+      icon: 'whatsapp',
+      external: true,
+    }}
+    secondary={{ label: 'Ver nuestro trabajo', href: ROUTES.casos }}
+  />
+</BaseLayout>
+
+<style>
+  .block-title {
+    margin-bottom: clamp(28px, 4vw, 44px);
+    max-width: 24ch;
+  }
+
+  .rule-card {
+    --gap: 8px;
+    --pad: clamp(24px, 3vw, 34px);
+    height: 100%;
+  }
+
+  .rule-card__index {
+    margin-bottom: 6px;
+    font-family: var(--font-display);
+    font-weight: var(--fw-black);
+    font-size: 12.5px;
+    letter-spacing: 0.08em;
+    color: var(--brand-secondary);
+  }
+
+  /* ── Ficha del fundador ─────────────────────────────────────────────── */
+
+  .founder :global(.founder__portrait) {
+    max-width: 260px;
+  }
+
+  .founder__body {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .founder__name {
+    font-family: var(--font-display);
+    font-weight: var(--fw-extrabold);
+    font-size: clamp(24px, 2.6vw, 32px);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--brand-primary);
+  }
+
+  .founder__role {
+    margin-top: -8px;
+    font-size: 11.5px;
+    font-weight: var(--fw-extrabold);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--brand-secondary);
+  }
+
+  .founder__facts {
+    display: flex;
+    flex-direction: column;
+    border-top: 1px solid var(--border-strong);
+  }
+
+  .founder__fact {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border-strong);
+    font-size: 14px;
+  }
+
+  .founder__fact dt {
+    color: var(--text-soft);
+  }
+
+  .founder__fact dd {
+    margin: 0;
+    font-weight: var(--fw-bold);
+    color: var(--brand-primary);
+    text-align: right;
+  }
+
+  /* ── Cifras ─────────────────────────────────────────────────────────── */
+
+  .number-card {
+    --gap: 0;
+    --pad: clamp(24px, 3vw, 34px);
+  }
+
+  .number-card__value {
+    font-family: var(--font-display);
+    font-weight: var(--fw-black);
+    font-size: clamp(30px, 3.4vw, 40px);
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--brand-primary);
+  }
+
+  .number-card__label {
+    margin: 10px 0 0;
+    font-size: 12.5px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-soft);
+  }
+</style>

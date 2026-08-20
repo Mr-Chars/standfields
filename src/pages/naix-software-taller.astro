@@ -1,0 +1,427 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Section from '@/components/ui/Section.astro';
+import Button from '@/components/ui/Button.astro';
+import Icon from '@/components/ui/Icon.astro';
+import Faq from '@/components/ui/Faq.astro';
+import ImagePlaceholder from '@/components/ui/ImagePlaceholder.astro';
+import PageHero from '@/components/sections/PageHero.astro';
+import CtaSection from '@/components/sections/CtaSection.astro';
+import { ROUTES } from '@/config/routes';
+import { CONTACT, WHATSAPP } from '@/config/site';
+import { breadcrumbSchema, faqSchema, softwareSchema } from '@/lib/structured-data';
+import { faq, features, hero, modules, planSummary, problems } from '@/data/software-taller';
+
+const crumbs = [{ label: 'Naix' }];
+const path = ROUTES.softwareTaller;
+---
+
+<BaseLayout
+  active="saas"
+  path={path}
+  title="Naix — software para talleres mecánicos"
+  description="Naix es el software de Standfields para talleres mecánicos: órdenes de servicio, control de clientes y base de datos de vehículos. Prueba gratis 14 días, sin tarjeta."
+  structuredData={[
+    breadcrumbSchema(crumbs, path),
+    faqSchema(faq),
+    softwareSchema(
+      planSummary.map((plan) => ({
+        name: plan.tier,
+        price: plan.price === 'Gratis' ? '0' : plan.price.replace(/[^\d.]/g, ''),
+        description: plan.text,
+      })),
+    ),
+  ]}
+>
+  <PageHero
+    crumbs={crumbs}
+    eyebrow={hero.eyebrow}
+    title={hero.title}
+    lead={hero.lead}
+    footnote={hero.footnote}
+    tone="navy"
+    layout="aside"
+    actions={[
+      { label: 'Empezar prueba gratis de 14 días', href: '#planes' },
+      {
+        label: 'Preguntar por WhatsApp',
+        href: WHATSAPP.software,
+        icon: 'whatsapp',
+        external: true,
+        variant: 'outline-on-dark',
+      },
+    ]}
+  >
+    <figure class="panel panel--dark" slot="aside">
+      <figcaption class="panel__caption">
+        <span class="panel__dot" aria-hidden="true"></span>
+        {hero.panelCaption}
+      </figcaption>
+      <ImagePlaceholder
+        label={hero.panelPlaceholder}
+        ratio="16 / 11"
+        tone="dark"
+        class="panel__slot"
+      />
+    </figure>
+  </PageHero>
+
+  {/* 01 — El problema */}
+  <Section hairline space="sm" ariaLabelledby="problema">
+    <span class="eyebrow">01 — El problema</span>
+    <h2 class="section-title block-title" id="problema">Cuatro cosas que pasan en casi todo taller</h2>
+    <ul class="grid-auto" style="--min: 240px">
+      {
+        problems.map((problem) => (
+          <li class="card problem-card">
+            <span class="problem-card__key" aria-hidden="true">
+              {problem.key}
+            </span>
+            <p>{problem.text}</p>
+          </li>
+        ))
+      }
+    </ul>
+  </Section>
+
+  {/* 02 — Módulos */}
+  <Section id="modulos" tone="cream" hairline ariaLabelledby="modulos-titulo">
+    <span class="eyebrow">02 — Módulos</span>
+    <h2 class="section-title block-title" id="modulos-titulo">Todo lo que incluye Naix</h2>
+    <ul class="grid-auto" style="--min: 272px">
+      {
+        modules.map((module) => (
+          <li class="card module-card">
+            <Icon name={module.icon} size={26} strokeWidth={2} class="module-card__icon" />
+            <h3 class="card-title" style="--fs: 19px">
+              {module.title}
+            </h3>
+            <p class="note">{module.text}</p>
+          </li>
+        ))
+      }
+    </ul>
+  </Section>
+
+  {/* 03 — En detalle */}
+  <Section hairline ariaLabelledby="detalle">
+    <div class="detail">
+      <div>
+        <span class="eyebrow">03 — En detalle</span>
+        <h2 class="section-title" id="detalle" style="max-width: 26ch">
+          Pensado para usarse con las manos sucias
+        </h2>
+      </div>
+
+      {
+        features.map((feature) => (
+          <div class:list={['feature-row', feature.reversed && 'feature-row--reversed']}>
+            <div class="feature-row__text">
+              <span class="feature-row__eyebrow">{feature.eyebrow}</span>
+              <h3 class="feature-row__title">{feature.title}</h3>
+              <p class="prose measure">{feature.text}</p>
+              <ul class="feature-row__bullets">
+                {feature.bullets.map((bullet) => (
+                  <li>
+                    <Icon name="check" size={17} />
+                    <span>{bullet}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <ImagePlaceholder label={feature.placeholder} ratio="4 / 3" class="feature-row__media" />
+          </div>
+        ))
+      }
+    </div>
+  </Section>
+
+  {/* 04 — Planes */}
+  <Section id="planes" tone="cream" hairline ariaLabelledby="planes-titulo">
+    <div class="section-head">
+      <div>
+        <span class="eyebrow">04 — Planes</span>
+        <h2 class="section-title" id="planes-titulo">Elige según el tamaño del taller</h2>
+      </div>
+      <a class="link-arrow" href={ROUTES.precios}>
+        Comparar todo en detalle
+        <Icon name="arrow-right" size={15} />
+      </a>
+    </div>
+
+    <ul class="grid-auto" style="--min: 268px">
+      {
+        planSummary.map((plan) => (
+          <li class:list={['card plan-card', plan.featured && 'plan-card--featured on-dark']}>
+            {plan.badge && <span class="plan-card__badge">{plan.badge}</span>}
+            <span class="plan-card__tier">{plan.tier}</span>
+            <p class="plan-card__price">
+              {plan.price}
+              <span class="plan-card__unit">{plan.unit}</span>
+            </p>
+            <p class="note">{plan.text}</p>
+            <Button
+              href={plan.featured ? ROUTES.precios : plan.tier === 'Pro' ? ROUTES.contacto : ROUTES.precios}
+              variant={plan.featured ? 'secondary' : 'outline'}
+              class="plan-card__cta"
+            >
+              {plan.cta}
+            </Button>
+          </li>
+        ))
+      }
+    </ul>
+  </Section>
+
+  {/* 05 — Dudas frecuentes */}
+  <Section id="faq" hairline ariaLabelledby="faq-titulo">
+    <div class="grid-auto" style="--min: 300px; --gap: clamp(28px, 4vw, 64px); --align: start">
+      <div>
+        <span class="eyebrow">05 — Dudas frecuentes</span>
+        <h2 class="section-title faq__title" id="faq-titulo">Lo que nos preguntan antes de empezar</h2>
+        <a class="link-arrow" href={ROUTES.contacto}>
+          ¿Otra pregunta? Escríbenos
+          <Icon name="arrow-right" size={15} />
+        </a>
+      </div>
+      <Faq items={faq} class="faq__list" />
+    </div>
+  </Section>
+
+  <CtaSection
+    title="Prueba Naix en tu propio taller."
+    text="Catorce días gratis, sin tarjeta. Si decides quedarte, migramos tu información y capacitamos a tu equipo."
+    primary={{ label: 'Crear mi cuenta de prueba', href: ROUTES.precios }}
+    secondary={{
+      label: `WhatsApp ${CONTACT.phoneDisplay}`,
+      href: WHATSAPP.software,
+      icon: 'whatsapp',
+      external: true,
+    }}
+  />
+</BaseLayout>
+
+<style>
+  .block-title {
+    margin-bottom: clamp(28px, 4vw, 48px);
+    max-width: 24ch;
+  }
+
+  /* Panel con captura, sobre fondo azul en la cabecera. */
+  .panel {
+    margin: 0;
+    border: 1px solid var(--border-inverse-strong);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+  }
+
+  .panel__caption {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-inverse-strong);
+    font-size: 11.5px;
+    font-weight: var(--fw-bold);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .panel__dot {
+    width: 10px;
+    height: 10px;
+    background: var(--navy-200);
+  }
+
+  .panel :global(.panel__slot) {
+    border: 0;
+    border-radius: 0;
+  }
+
+  .problem-card {
+    --gap: 0;
+    --pad: clamp(22px, 2.6vw, 30px);
+  }
+
+  .problem-card__key {
+    display: block;
+    margin-bottom: 12px;
+    font-family: var(--font-display);
+    font-weight: var(--fw-black);
+    font-size: 13px;
+    color: var(--brand-secondary);
+  }
+
+  .problem-card p {
+    font-size: 15.5px;
+    line-height: 1.6;
+  }
+
+  .module-card {
+    --gap: 12px;
+    --pad: clamp(24px, 3vw, 34px);
+  }
+
+  .module-card__icon {
+    color: var(--brand-secondary);
+  }
+
+  /* ── Filas alternas de detalle funcional ────────────────────────────── */
+
+  .detail {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(56px, 6vw, 100px);
+  }
+
+  .feature-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr));
+    gap: clamp(28px, 4vw, 56px);
+    align-items: center;
+    padding-top: clamp(28px, 4vw, 44px);
+    border-top: 1px solid var(--border-subtle);
+  }
+
+  /* En pantallas anchas la imagen pasa a la izquierda; en una sola columna se
+     mantiene el orden natural (texto antes que imagen) para que la lectura
+     y el orden de foco sigan teniendo sentido. */
+  @media (min-width: 720px) {
+    .feature-row--reversed .feature-row__text {
+      order: 2;
+    }
+  }
+
+  .feature-row__eyebrow {
+    display: block;
+    margin-bottom: 14px;
+    font-size: 11.5px;
+    font-weight: var(--fw-extrabold);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--brand-secondary);
+  }
+
+  .feature-row__title {
+    margin-bottom: 14px;
+    font-size: clamp(22px, 2.4vw, 30px);
+    line-height: 1.12;
+    color: var(--brand-primary);
+  }
+
+  .feature-row__text .prose {
+    margin-bottom: 18px;
+  }
+
+  .feature-row__bullets {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .feature-row__bullets li {
+    display: flex;
+    gap: 10px;
+    font-size: 14.5px;
+  }
+
+  .feature-row__bullets :global(svg) {
+    margin-top: 2px;
+    color: var(--brand-secondary);
+  }
+
+  .feature-row :global(.feature-row__media) {
+    border-style: solid;
+    border-color: var(--border-subtle);
+  }
+
+  /* ── Planes ─────────────────────────────────────────────────────────── */
+
+  .section-head {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin-bottom: clamp(26px, 4vw, 40px);
+  }
+
+  .plan-card {
+    position: relative;
+    --gap: 14px;
+    --pad: clamp(24px, 3vw, 34px);
+    height: 100%;
+  }
+
+  .plan-card--featured {
+    --bg: var(--bg-inverse);
+    border-color: var(--brand-primary);
+    box-shadow: 0 1px 2px rgb(16 37 66 / 0.08), 0 14px 34px rgb(16 37 66 / 0.16);
+  }
+
+  .plan-card__badge {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    padding: 5px 10px;
+    background: var(--navy-200);
+    border-radius: var(--radius-pill);
+    color: var(--brand-primary);
+    font-size: 11px;
+    font-weight: var(--fw-extrabold);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .plan-card__tier {
+    font-size: 11.5px;
+    font-weight: var(--fw-extrabold);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-soft);
+  }
+
+  .plan-card--featured .plan-card__tier {
+    color: var(--navy-200);
+  }
+
+  .plan-card__price {
+    font-family: var(--font-display);
+    font-weight: var(--fw-black);
+    font-size: clamp(30px, 3.4vw, 40px);
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--brand-primary);
+  }
+
+  .plan-card--featured .plan-card__price {
+    color: var(--text-on-dark);
+  }
+
+  .plan-card__unit {
+    font-size: 14px;
+    font-weight: var(--fw-semibold);
+    letter-spacing: 0;
+    color: var(--text-soft);
+  }
+
+  .plan-card--featured .plan-card__unit {
+    color: rgb(255 255 255 / 0.7);
+  }
+
+  .plan-card :global(.plan-card__cta) {
+    margin-top: auto;
+    align-self: stretch;
+  }
+
+  /* ── FAQ ────────────────────────────────────────────────────────────── */
+
+  .faq__title {
+    margin-bottom: 18px;
+    max-width: 18ch;
+  }
+
+  .faq__list {
+    border-top: 1px solid var(--border-subtle);
+  }
+</style>

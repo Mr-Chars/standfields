@@ -1,0 +1,75 @@
+---
+/**
+ * Banda horizontal de página.
+ *
+ * Encapsula el ritmo vertical, el fondo y la línea de separación que el diseño
+ * repite en todas las secciones, para que las páginas describan contenido y no
+ * espaciados. El contenido va dentro de un `.container` salvo que se pida
+ * `bleed` (secciones que sangran de borde a borde, como la franja de datos).
+ */
+interface Props {
+  /** Fondo de la banda. */
+  tone?: 'white' | 'cream' | 'navy';
+  /** Línea inferior de 1px, como en el diseño de referencia. */
+  hairline?: boolean;
+  /** Ritmo vertical: `sm` y `lg` son las otras dos alturas del diseño. */
+  space?: 'sm' | 'md' | 'lg' | 'none';
+  /** Omite el contenedor centrado (para franjas a ancho completo). */
+  bleed?: boolean;
+  /** Ancla para enlaces internos (#modulos, #faq…). */
+  id?: string;
+  /** Título accesible de la región, cuando la sección no lleva encabezado visible. */
+  ariaLabel?: string;
+  /** id del encabezado que da nombre a la región. */
+  ariaLabelledby?: string;
+  class?: string;
+}
+
+const {
+  tone = 'white',
+  hairline = false,
+  space = 'md',
+  bleed = false,
+  id,
+  ariaLabel,
+  ariaLabelledby,
+  class: className,
+} = Astro.props;
+
+const SPACING: Record<string, string | undefined> = {
+  sm: 'var(--section-py-sm)',
+  md: undefined,
+  lg: 'var(--section-py-lg)',
+  none: '0',
+};
+
+const classes = [
+  'section',
+  tone === 'cream' && 'section--cream',
+  tone === 'navy' && 'section--navy on-dark',
+  hairline && 'section--hairline',
+  className,
+]
+  .filter(Boolean)
+  .join(' ');
+
+const py = SPACING[space];
+---
+
+<section
+  id={id}
+  class={classes}
+  style={py ? `--py: ${py}` : undefined}
+  aria-label={ariaLabel}
+  aria-labelledby={ariaLabelledby}
+>
+  {
+    bleed ? (
+      <slot />
+    ) : (
+      <div class="container">
+        <slot />
+      </div>
+    )
+  }
+</section>

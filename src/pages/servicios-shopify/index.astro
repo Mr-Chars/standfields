@@ -1,0 +1,246 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Section from '@/components/ui/Section.astro';
+import Icon from '@/components/ui/Icon.astro';
+import ImagePlaceholder from '@/components/ui/ImagePlaceholder.astro';
+import PageHero from '@/components/sections/PageHero.astro';
+import MetaStrip from '@/components/sections/MetaStrip.astro';
+import CtaSection from '@/components/sections/CtaSection.astro';
+import { ROUTES } from '@/config/routes';
+import { CONTACT, WHATSAPP } from '@/config/site';
+import { breadcrumbSchema, serviceSchema } from '@/lib/structured-data';
+import { hub } from '@/data/shopify';
+
+const crumbs = [{ label: 'Servicios Shopify' }];
+const path = ROUTES.serviciosShopify;
+const description =
+  'Tiendas Shopify desde cero, customización avanzada de temas en Liquid y apps a medida ' +
+  'sobre la API de Shopify. Desarrollo e-commerce en Perú y Latinoamérica.';
+---
+
+<BaseLayout
+  active="shopify"
+  path={path}
+  title="Servicios Shopify — desarrollo e-commerce"
+  description={description}
+  structuredData={[
+    breadcrumbSchema(crumbs, path),
+    serviceSchema({ name: 'Desarrollo Shopify', description, path }),
+  ]}
+>
+  <PageHero
+    crumbs={crumbs}
+    eyebrow={hub.eyebrow}
+    title={hub.title}
+    lead={hub.lead}
+    titleMeasure="16ch"
+    layout="split"
+    actions={[
+      { label: 'Cotizar por WhatsApp', href: WHATSAPP.shopify, icon: 'whatsapp', external: true },
+      { label: 'Ver tiendas que hicimos', href: ROUTES.casos },
+    ]}
+  >
+    <MetaStrip
+      slot="strip"
+      tone="cream"
+      items={hub.stats.map((stat) => ({ label: stat.label, value: stat.value }))}
+    />
+  </PageHero>
+
+  {/* 01 — Qué resolvemos */}
+  <Section hairline space="sm" ariaLabelledby="que-resolvemos">
+    <span class="eyebrow">01 — Qué resolvemos</span>
+    <div class="grid-auto" style="--min: 280px; --gap: clamp(24px, 3vw, 48px)">
+      <h2 class="section-title" id="que-resolvemos">{hub.problemsTitle}</h2>
+      <ul class="stack-list">
+        {
+          hub.problems.map((problem) => (
+            <li class="stack-list__item">
+              <span class="stack-list__title">{problem.title}</span>
+              <span class="stack-list__text">{problem.text}</span>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </Section>
+
+  {/* 02 — Los servicios */}
+  <Section tone="cream" hairline ariaLabelledby="los-servicios">
+    <span class="eyebrow">02 — Los servicios</span>
+    <h2 class="section-title services__title" id="los-servicios">Elige por dónde empezar</h2>
+    <ul>
+      {
+        hub.services.map((service) => (
+          <li>
+            <a class="service-row" href={service.href}>
+              <span class="service-row__head">
+                <span class="service-row__index" aria-hidden="true">
+                  {service.index}
+                </span>
+                <span>
+                  <span class="service-row__title">{service.title}</span>
+                  <span class="service-row__meta">{service.meta}</span>
+                </span>
+              </span>
+              <span class="service-row__text">{service.text}</span>
+              <span class="service-row__more">
+                Ver el servicio
+                <Icon name="arrow-right" size={17} />
+              </span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </Section>
+
+  {/* 03 — Caso destacado */}
+  <Section hairline ariaLabelledby="caso-destacado">
+    <span class="eyebrow">03 — Caso destacado</span>
+    <div class="grid-auto" style="--min: 320px; --gap: clamp(28px, 4vw, 56px); --align: center">
+      <ImagePlaceholder label={hub.featuredCase.placeholder} ratio="4 / 3" />
+      <div>
+        <h2 class="section-title case__title" id="caso-destacado">{hub.featuredCase.title}</h2>
+        <p class="prose measure case__text" style="--measure: 46ch">{hub.featuredCase.text}</p>
+        <dl class="mini-stats case__stats">
+          {
+            hub.featuredCase.stats.map((stat) => (
+              <div class="mini-stat">
+                <dt class="mini-stat__value">{stat.value}</dt>
+                <dd class="mini-stat__label">{stat.label}</dd>
+              </div>
+            ))
+          }
+        </dl>
+        <a class="link-arrow" href={ROUTES.casos}>
+          Ver todos los casos
+          <Icon name="arrow-right" size={15} />
+        </a>
+      </div>
+    </div>
+  </Section>
+
+  {/* 04 — Con qué trabajamos */}
+  <Section tone="navy" hairline space="sm" ariaLabelledby="stack">
+    <span class="eyebrow">04 — Con qué trabajamos</span>
+    <div class="grid-auto" style="--min: 300px; --gap: clamp(24px, 4vw, 56px); --align: start">
+      <h2 class="section-title" id="stack" style="max-width: 20ch">{hub.stack.title}</h2>
+      <ul class="tag-list">
+        {hub.stack.tags.map((tag) => <li class="tag">{tag}</li>)}
+      </ul>
+    </div>
+  </Section>
+
+  <CtaSection
+    title="Cuéntanos de tu tienda."
+    text="Mándanos el enlace por WhatsApp. Te decimos qué mejoraríamos primero y cuánto costaría, sin compromiso."
+    primary={{
+      label: `WhatsApp ${CONTACT.phoneDisplay}`,
+      href: WHATSAPP.shopify,
+      icon: 'whatsapp',
+      external: true,
+    }}
+    secondary={{ label: 'Ver rangos de precio', href: ROUTES.precios }}
+  />
+</BaseLayout>
+
+<style>
+  .services__title {
+    margin-bottom: clamp(28px, 4vw, 44px);
+    max-width: 24ch;
+  }
+
+  /* Fila de servicio: tres columnas en escritorio, apilada en móvil. */
+  .service-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
+    gap: clamp(20px, 3vw, 48px);
+    align-items: start;
+    padding: clamp(26px, 3.4vw, 40px) 0;
+    border-top: 1px solid var(--border-subtle);
+  }
+
+  li:last-child .service-row {
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .service-row:hover {
+    background: var(--cream-100);
+  }
+
+  .service-row__index {
+    padding-top: 6px;
+    font-family: var(--font-display);
+    font-weight: var(--fw-black);
+    font-size: 14px;
+    color: var(--brand-secondary);
+  }
+
+  /* El índice y el título comparten la primera columna de la fila. */
+  .service-row__head {
+    display: flex;
+    align-items: flex-start;
+    gap: 18px;
+  }
+
+  .service-row__title {
+    display: block;
+    margin-bottom: 10px;
+    font-family: var(--font-display);
+    font-weight: var(--fw-extrabold);
+    font-size: clamp(22px, 2.6vw, 32px);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--brand-primary);
+  }
+
+  .service-row__meta {
+    display: block;
+    font-size: 13.5px;
+    font-weight: var(--fw-bold);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--brand-secondary);
+  }
+
+  .service-row__text {
+    font-size: 15.5px;
+    line-height: 1.65;
+    color: var(--text-body);
+  }
+
+  .service-row__more {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    font-family: var(--font-display);
+    font-weight: var(--fw-extrabold);
+    font-size: 14px;
+    color: var(--brand-primary);
+  }
+
+  .service-row__more :global(svg) {
+    color: var(--brand-secondary);
+  }
+
+  .case__title {
+    margin-bottom: 16px;
+    --fs: clamp(28px, 3.2vw, 44px);
+    --lh: 1.1;
+  }
+
+  .case__text {
+    margin-bottom: 26px;
+    font-size: 15.5px;
+  }
+
+  .case__stats {
+    margin-bottom: 26px;
+  }
+
+  .case__stats :global(dd) {
+    margin: 0;
+  }
+</style>

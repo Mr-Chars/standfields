@@ -1,0 +1,71 @@
+---
+import { SITE, SITE_URL } from '@/config/site';
+import { serializeJsonLd } from '@/lib/structured-data';
+
+/**
+ * Metadatos de una página: título, descripción, canónica, Open Graph,
+ * Twitter Cards y los datos estructurados que se le pasen.
+ *
+ * Todas las URLs se resuelven contra `Astro.site`, de modo que la canónica
+ * siempre apunta al dominio de producción aunque la página se sirva desde una
+ * vista previa de Cloudflare.
+ */
+export interface SeoProps {
+  /** Título de la página, sin el nombre de marca (se añade aquí). */
+  title: string;
+  description: string;
+  /** Ruta absoluta del sitio, con barra final. */
+  path: string;
+  /** Imagen social propia; si se omite se usa la de marca. */
+  image?: string;
+  imageAlt?: string;
+  /** Excluye la página de los índices de búsqueda (404, páginas técnicas). */
+  noindex?: boolean;
+  /** Bloques JSON-LD adicionales de la página. */
+  structuredData?: Record<string, unknown>[];
+}
+
+const {
+  title,
+  description,
+  path,
+  image = '/og-default.png',
+  imageAlt = `${SITE.name} — ${SITE.tagline}`,
+  noindex = false,
+  structuredData = [],
+} = Astro.props as SeoProps;
+
+const canonical = new URL(path, SITE_URL).href;
+const imageUrl = new URL(image, SITE_URL).href;
+
+/** La portada no repite el nombre de marca dos veces. */
+const fullTitle = path === '/' ? `${SITE.name} — ${title}` : `${title} | ${SITE.name}`;
+---
+
+<title>{fullTitle}</title>
+<meta name="description" content={description} />
+<link rel="canonical" href={canonical} />
+{noindex && <meta name="robots" content="noindex, follow" />}
+
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content={SITE.name} />
+<meta property="og:locale" content="es_PE" />
+<meta property="og:title" content={fullTitle} />
+<meta property="og:description" content={description} />
+<meta property="og:url" content={canonical} />
+<meta property="og:image" content={imageUrl} />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content={imageAlt} />
+
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={fullTitle} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={imageUrl} />
+<meta name="twitter:image:alt" content={imageAlt} />
+
+{
+  structuredData.map((data) => (
+    <script type="application/ld+json" set:html={serializeJsonLd(data)} is:inline />
+  ))
+}

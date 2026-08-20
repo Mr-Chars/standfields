@@ -1,0 +1,147 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Section from '@/components/ui/Section.astro';
+import Icon from '@/components/ui/Icon.astro';
+import ImagePlaceholder from '@/components/ui/ImagePlaceholder.astro';
+import PageHero from '@/components/sections/PageHero.astro';
+import MetaStrip from '@/components/sections/MetaStrip.astro';
+import CtaSection from '@/components/sections/CtaSection.astro';
+import { ROUTES } from '@/config/routes';
+import { CONTACT, WHATSAPP } from '@/config/site';
+import { breadcrumbSchema, serviceSchema } from '@/lib/structured-data';
+import { apps } from '@/data/shopify';
+
+const crumbs = [
+  { label: 'Servicios Shopify', href: ROUTES.serviciosShopify },
+  { label: 'Apps a medida' },
+];
+const path = ROUTES.shopifyApps;
+const description =
+  'Apps privadas y públicas sobre la API de Shopify: integración con tu ERP, precios por ' +
+  'cliente, automatizaciones y paneles internos. Desde S/ 6,000, con el código entregado.';
+---
+
+<BaseLayout
+  active="shopify"
+  path={path}
+  title="Apps a medida para Shopify"
+  description={description}
+  structuredData={[
+    breadcrumbSchema(crumbs, path),
+    serviceSchema({
+      name: 'Desarrollo de apps a medida para Shopify',
+      description,
+      path,
+      priceFrom: apps.priceFrom,
+    }),
+  ]}
+>
+  <PageHero
+    crumbs={crumbs}
+    eyebrow={apps.eyebrow}
+    title={apps.title}
+    lead={apps.lead}
+    titleMeasure="14ch"
+    layout="aside"
+    actions={[
+      {
+        label: apps.heroActions.primary,
+        href: WHATSAPP.shopify,
+        icon: 'whatsapp',
+        external: true,
+      },
+      apps.heroActions.secondary,
+    ]}
+  >
+    <ImagePlaceholder slot="aside" label={apps.heroPlaceholder} ratio="16 / 10" />
+    <MetaStrip slot="strip" items={apps.meta} />
+  </PageHero>
+
+  {/* 01 — Qué construimos */}
+  <Section hairline space="sm" ariaLabelledby="casos-de-uso">
+    <span class="eyebrow">01 — Qué construimos</span>
+    <h2 class="section-title block-title" id="casos-de-uso">{apps.problemsTitle}</h2>
+    <ul class="grid-auto" style="--min: 250px">
+      {
+        apps.problems.map((problem) => (
+          <li class="card use-card">
+            <Icon name={problem.icon} size={24} strokeWidth={2} class="use-card__icon" />
+            <h3 class="card-title" style="--fs: 18px">
+              {problem.title}
+            </h3>
+            <p class="note">{problem.text}</p>
+          </li>
+        ))
+      }
+    </ul>
+  </Section>
+
+  {/* 02 — El proceso */}
+  <Section tone="cream" hairline ariaLabelledby="proceso">
+    <span class="eyebrow">02 — El proceso</span>
+    <div class="grid-auto" style="--min: 300px; --gap: clamp(28px, 4vw, 64px); --align: start">
+      <div>
+        <h2 class="section-title process__title" id="proceso">{apps.processTitle}</h2>
+        <p class="prose measure">{apps.processText}</p>
+      </div>
+      <ol class="numbered-list">
+        {
+          apps.process.map((step, index) => (
+            <li class="numbered-list__item">
+              <span class="numbered-list__index">{String(index + 1).padStart(2, '0')}</span>
+              <div>
+                <span class="numbered-list__title">{step.title}</span>
+                <span class="numbered-list__text">{step.text}</span>
+              </div>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </Section>
+
+  {/* 03 — Stack técnico */}
+  <Section tone="navy" hairline space="sm" ariaLabelledby="stack">
+    <span class="eyebrow">03 — Stack técnico</span>
+    <div class="grid-auto" style="--min: 300px; --gap: clamp(24px, 4vw, 56px); --align: start">
+      <h2 class="section-title" id="stack" style="max-width: 20ch">{apps.stackTitle}</h2>
+      <ul class="tag-list">
+        {apps.stack.map((tag) => <li class="tag">{tag}</li>)}
+      </ul>
+    </div>
+  </Section>
+
+  <CtaSection
+    title={apps.cta.title}
+    text={apps.cta.text}
+    primary={{
+      label: `WhatsApp ${CONTACT.phoneDisplay}`,
+      href: WHATSAPP.shopify,
+      icon: 'whatsapp',
+      external: true,
+    }}
+    secondary={apps.cta.secondary}
+  />
+</BaseLayout>
+
+<style>
+  .block-title {
+    margin-bottom: clamp(28px, 4vw, 44px);
+    max-width: 24ch;
+  }
+
+  .use-card {
+    --gap: 10px;
+    --pad: clamp(24px, 3vw, 32px);
+    height: 100%;
+  }
+
+  .use-card__icon {
+    color: var(--brand-secondary);
+  }
+
+  .process__title {
+    margin-bottom: 16px;
+    max-width: 18ch;
+  }
+</style>

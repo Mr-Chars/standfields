@@ -1,0 +1,491 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Section from '@/components/ui/Section.astro';
+import Icon from '@/components/ui/Icon.astro';
+import PageHero from '@/components/sections/PageHero.astro';
+import { ROUTES } from '@/config/routes';
+import { CONTACT, MAILTO_LINK, TEL_LINK, WHATSAPP } from '@/config/site';
+import { breadcrumbSchema } from '@/lib/structured-data';
+import { intro, interests, usefulLinks } from '@/data/contacto';
+
+const crumbs = [{ label: 'Contacto' }];
+const path = ROUTES.contacto;
+
+/** Número en el formato que espera wa.me, para el `action` del formulario. */
+const whatsappAction = `https://wa.me/${CONTACT.phoneE164.replace(/\D/g, '')}`;
+---
+
+<BaseLayout
+  active="contacto"
+  path={path}
+  title="Contacto"
+  description={`Escríbenos por WhatsApp al ${CONTACT.phoneDisplay} o cuéntanos el detalle de tu proyecto en el formulario. Atendemos en Lima y de forma remota en toda Latinoamérica.`}
+  structuredData={[
+    breadcrumbSchema(crumbs, path),
+    {
+      '@context': 'https://schema.org',
+      '@type': 'ContactPage',
+      name: 'Contacto — Standfields',
+      mainEntity: {
+        '@type': 'ContactPoint',
+        telephone: CONTACT.phoneE164,
+        email: CONTACT.email,
+        contactType: 'Ventas y soporte',
+        availableLanguage: 'Spanish',
+      },
+    },
+  ]}
+>
+  <PageHero
+    crumbs={crumbs}
+    eyebrow={intro.eyebrow}
+    title={intro.title}
+    lead={intro.lead}
+    layout="split"
+    titleMeasure="14ch"
+  />
+
+  {/* Vía rápida: WhatsApp */}
+  <Section tone="navy" space="sm" ariaLabel="Contacto directo por WhatsApp">
+    <div class="quick">
+      <div>
+        <span class="eyebrow">La vía rápida</span>
+        <a class="quick__number" href={WHATSAPP.general} target="_blank" rel="noopener noreferrer">
+          {CONTACT.phoneDisplay}
+          <span class="visually-hidden">(abre WhatsApp en una pestaña nueva)</span>
+        </a>
+        <p class="quick__hours">
+          {CONTACT.hours.map((slot) => `${slot.days}, ${slot.time}`).join(' · ')}
+        </p>
+      </div>
+      <div class="actions">
+        <a class="btn btn--secondary btn--lg" href={WHATSAPP.software} target="_blank" rel="noopener noreferrer">
+          <Icon name="whatsapp" size={16} strokeWidth={2} />
+          Consultar por Naix
+          <span class="visually-hidden">(se abre en una pestaña nueva)</span>
+        </a>
+        <a class="btn btn--outline-on-dark btn--lg" href={WHATSAPP.shopify} target="_blank" rel="noopener noreferrer">
+          <Icon name="whatsapp" size={16} strokeWidth={2} />
+          Cotizar un proyecto Shopify
+          <span class="visually-hidden">(se abre en una pestaña nueva)</span>
+        </a>
+      </div>
+    </div>
+  </Section>
+
+  {/* Formulario y datos de contacto */}
+  <Section ariaLabelledby="formulario">
+    <div class="grid-auto" style="--min: 320px; --gap: clamp(36px, 5vw, 72px); --align: start">
+      <div>
+        <span class="eyebrow">Formulario</span>
+        <h2 class="section-title form__title" id="formulario">Escríbenos el detalle</h2>
+
+        {/*
+          El sitio es estático y no guarda datos personales en ningún servidor:
+          el formulario compone un mensaje y lo abre en WhatsApp o en el cliente
+          de correo, que es donde el usuario decide enviarlo.
+
+          Sin JavaScript sigue funcionando: el `action` apunta a wa.me y el campo
+          del detalle se llama `text`, que es el parámetro que wa.me interpreta.
+          Con JavaScript se compone un mensaje completo con todos los campos.
+        */}
+        <form
+          class="form"
+          action={whatsappAction}
+          method="get"
+          target="_blank"
+          data-contact-form
+        >
+          <div class="form__row">
+            <div class="field">
+              <label for="nombre">Nombre y apellido <span aria-hidden="true">*</span></label>
+              <input
+                id="nombre"
+                name="nombre"
+                type="text"
+                required
+                autocomplete="name"
+                placeholder="Tu nombre"
+              />
+            </div>
+            <div class="field">
+              <label for="correo">Correo <span aria-hidden="true">*</span></label>
+              <input
+                id="correo"
+                name="correo"
+                type="email"
+                required
+                autocomplete="email"
+                placeholder="tucorreo@empresa.com"
+              />
+            </div>
+          </div>
+
+          <div class="form__row">
+            <div class="field">
+              <label for="telefono">Teléfono / WhatsApp</label>
+              <input
+                id="telefono"
+                name="telefono"
+                type="tel"
+                autocomplete="tel"
+                placeholder="+51 900 000 000"
+              />
+            </div>
+            <div class="field">
+              <label for="empresa">Empresa</label>
+              <input
+                id="empresa"
+                name="empresa"
+                type="text"
+                autocomplete="organization"
+                placeholder="Nombre del taller o marca"
+              />
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="interes">¿Qué te interesa? <span aria-hidden="true">*</span></label>
+            <select id="interes" name="interes" required>
+              <option value="">Elige una opción</option>
+              {interests.map((option) => <option value={option}>{option}</option>)}
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="detalle">Cuéntanos el detalle <span aria-hidden="true">*</span></label>
+            <textarea
+              id="detalle"
+              name="text"
+              rows="5"
+              required
+              placeholder="Qué necesitas resolver, para cuándo, y cualquier enlace que ayude (tu tienda actual, referencias)."
+            ></textarea>
+          </div>
+
+          <div class="form__submit">
+            <button type="submit" class="btn btn--primary btn--lg">
+              <Icon name="whatsapp" size={16} strokeWidth={2} />
+              Enviar por WhatsApp
+            </button>
+            <a class="btn btn--outline btn--lg" href={MAILTO_LINK} data-mail-fallback>
+              <Icon name="mail" size={16} strokeWidth={2} />
+              Enviar por correo
+            </a>
+          </div>
+
+          <p class="form__note">
+            Se abre WhatsApp (o tu gestor de correo) con el mensaje ya escrito; tú decides
+            cuándo enviarlo. Los campos con <span aria-hidden="true">*</span>
+            <span class="visually-hidden">asterisco</span> son obligatorios.
+          </p>
+        </form>
+      </div>
+
+      <aside class="details" aria-label="Otros datos de contacto">
+        <div class="details__block">
+          <h3 class="details__label">Atención telefónica</h3>
+          <a class="details__strong" href={TEL_LINK}>{CONTACT.phoneDisplay}</a>
+        </div>
+
+        <div class="details__block">
+          <h3 class="details__label">Correo</h3>
+          <a class="details__strong details__strong--sm" href={MAILTO_LINK}>{CONTACT.email}</a>
+        </div>
+
+        <div class="details__block">
+          <h3 class="details__label">Horarios de atención</h3>
+          <p class="details__text">
+            {
+              CONTACT.hours.map((slot, index) => (
+                <>
+                  {index > 0 && <br />}
+                  {slot.days === 'Lun – Vie' ? 'Lunes a viernes' : 'Sábado y domingo'}, {slot.time}
+                </>
+              ))
+            }
+          </p>
+        </div>
+
+        <div class="details__block">
+          <h3 class="details__label">Ubicación</h3>
+          <p class="details__text">
+            {/* TODO: sustituir «[Dirección]» por la dirección real. */}
+            {CONTACT.address.street}, {CONTACT.address.city}, {CONTACT.address.country}
+            <br />
+            <span class="details__muted">
+              Atendemos también de forma remota en toda Latinoamérica.
+            </span>
+          </p>
+        </div>
+
+        <div class="details__block">
+          <h3 class="details__label">Enlaces útiles</h3>
+          <ul class="details__links">
+            {
+              usefulLinks.map((link) => (
+                <li>
+                  <a href={link.href}>{link.label}</a>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+      </aside>
+    </div>
+  </Section>
+</BaseLayout>
+
+<style>
+  /* ── Franja de WhatsApp ─────────────────────────────────────────────── */
+
+  .quick {
+    display: flex;
+    flex-wrap: wrap;
+    gap: clamp(24px, 4vw, 48px);
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .quick__number {
+    display: inline-block;
+    font-family: var(--font-display);
+    font-weight: var(--fw-black);
+    font-size: clamp(32px, 5vw, 58px);
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--white);
+  }
+
+  .quick__number:hover {
+    color: var(--navy-200);
+  }
+
+  .quick__hours {
+    margin-top: 14px;
+    font-size: 14px;
+    color: var(--text-on-dark-soft);
+  }
+
+  /* ── Formulario ─────────────────────────────────────────────────────── */
+
+  .form__title {
+    margin-bottom: clamp(24px, 3vw, 34px);
+  }
+
+  .form {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+  }
+
+  .form__row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
+    gap: 18px;
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  label {
+    font-size: 11.5px;
+    font-weight: var(--fw-extrabold);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-soft);
+  }
+
+  input,
+  select,
+  textarea {
+    width: 100%;
+    min-height: var(--tap-target);
+    padding: 13px 14px;
+    background: var(--white);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-md);
+    font-family: var(--font-sans);
+    font-size: 15px;
+    color: var(--text-primary);
+    transition: var(--transition-color);
+  }
+
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--text-muted);
+  }
+
+  input:hover,
+  select:hover,
+  textarea:hover {
+    border-color: var(--brand-secondary);
+  }
+
+  textarea {
+    resize: vertical;
+    line-height: 1.6;
+  }
+
+  /* El navegador marca en rojo sólo tras interactuar, no al cargar la página. */
+  input:user-invalid,
+  select:user-invalid,
+  textarea:user-invalid {
+    border-color: var(--status-danger);
+  }
+
+  .form__submit {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+  }
+
+  .form__note {
+    max-width: 56ch;
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--text-soft);
+  }
+
+  /* ── Columna de datos ───────────────────────────────────────────────── */
+
+  .details {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .details__block {
+    padding: 20px 0;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .details__block:first-child {
+    padding-top: 0;
+  }
+
+  .details__block:last-child {
+    border-bottom: 0;
+  }
+
+  .details__label {
+    margin-bottom: 10px;
+    font-family: var(--font-sans);
+    font-size: 11.5px;
+    font-weight: var(--fw-extrabold);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--brand-secondary);
+  }
+
+  .details__strong {
+    font-family: var(--font-display);
+    font-weight: var(--fw-extrabold);
+    font-size: 22px;
+    color: var(--brand-primary);
+  }
+
+  .details__strong--sm {
+    font-size: 17px;
+  }
+
+  .details__strong:hover {
+    color: var(--brand-secondary);
+  }
+
+  .details__text {
+    font-size: 15px;
+    line-height: 1.7;
+    color: var(--text-body);
+  }
+
+  .details__muted {
+    color: var(--text-soft);
+  }
+
+  .details__links {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .details__links a {
+    font-size: 15px;
+    font-weight: var(--fw-semibold);
+    color: var(--brand-primary);
+  }
+
+  .details__links a:hover {
+    color: var(--brand-secondary);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+</style>
+
+<script>
+  /**
+   * Mejora progresiva del formulario de contacto.
+   *
+   * Sin este script el formulario ya funciona: hace un GET a wa.me y el campo
+   * del detalle (`name="text"`) llega como mensaje. Con él se compone un texto
+   * completo con todos los campos, y el botón de correo abre un `mailto:` con
+   * el mismo contenido.
+   *
+   * Nada sale del navegador hacia un servidor propio: no hay datos personales
+   * en tránsito más allá de lo que el usuario decide enviar por WhatsApp o
+   * correo.
+   */
+  const form = document.querySelector<HTMLFormElement>('[data-contact-form]');
+  const mailButton = document.querySelector<HTMLAnchorElement>('[data-mail-fallback]');
+
+  if (form) {
+    const value = (name: string) => {
+      const field = form.elements.namedItem(name);
+      return field instanceof HTMLInputElement ||
+        field instanceof HTMLTextAreaElement ||
+        field instanceof HTMLSelectElement
+        ? field.value.trim()
+        : '';
+    };
+
+    /** Texto plano con las etiquetas del formulario, listo para enviar. */
+    const composeMessage = () => {
+      const lines = [
+        `Hola Standfields, soy ${value('nombre')}.`,
+        '',
+        `Interés: ${value('interes')}`,
+        `Correo: ${value('correo')}`,
+      ];
+      if (value('telefono')) lines.push(`Teléfono: ${value('telefono')}`);
+      if (value('empresa')) lines.push(`Empresa: ${value('empresa')}`);
+      lines.push('', value('text'));
+      return lines.join('\n');
+    };
+
+    form.addEventListener('submit', (event) => {
+      // `checkValidity` deja que el navegador muestre sus propios mensajes.
+      if (!form.checkValidity()) return;
+
+      event.preventDefault();
+      const url = `${form.action}?text=${encodeURIComponent(composeMessage())}`;
+      window.open(url, '_blank', 'noopener,noreferrer');
+    });
+
+    if (mailButton) {
+      const base = mailButton.href;
+      mailButton.addEventListener('click', (event) => {
+        if (!form.reportValidity()) {
+          event.preventDefault();
+          return;
+        }
+        const subject = `Consulta desde standfields.com — ${value('interes') || 'General'}`;
+        mailButton.href =
+          `${base}?subject=${encodeURIComponent(subject)}` +
+          `&body=${encodeURIComponent(composeMessage())}`;
+      });
+    }
+  }
+</script>

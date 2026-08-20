@@ -1,0 +1,179 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Section from '@/components/ui/Section.astro';
+import ImagePlaceholder from '@/components/ui/ImagePlaceholder.astro';
+import PageHero from '@/components/sections/PageHero.astro';
+import MetaStrip from '@/components/sections/MetaStrip.astro';
+import CtaSection from '@/components/sections/CtaSection.astro';
+import { ROUTES } from '@/config/routes';
+import { CONTACT, WHATSAPP } from '@/config/site';
+import { breadcrumbSchema, serviceSchema } from '@/lib/structured-data';
+import { customizacion } from '@/data/shopify';
+
+const crumbs = [
+  { label: 'Servicios Shopify', href: ROUTES.serviciosShopify },
+  { label: 'Customización avanzada' },
+];
+const path = ROUTES.shopifyCustomizacion;
+const description =
+  'Intervenimos tu tema de Shopify en Liquid: secciones editables, ficha de producto, ' +
+  'checkout extensions, velocidad y SEO técnico. Desde S/ 1,800 en 2 a 4 semanas.';
+---
+
+<BaseLayout
+  active="shopify"
+  path={path}
+  title="Customización avanzada de temas Shopify"
+  description={description}
+  structuredData={[
+    breadcrumbSchema(crumbs, path),
+    serviceSchema({
+      name: 'Customización avanzada de temas Shopify',
+      description,
+      path,
+      priceFrom: customizacion.priceFrom,
+    }),
+  ]}
+>
+  <PageHero
+    crumbs={crumbs}
+    eyebrow={customizacion.eyebrow}
+    title={customizacion.title}
+    lead={customizacion.lead}
+    titleMeasure="15ch"
+    layout="aside"
+    actions={[
+      {
+        label: customizacion.heroActions.primary,
+        href: WHATSAPP.shopify,
+        icon: 'whatsapp',
+        external: true,
+      },
+      customizacion.heroActions.secondary,
+    ]}
+  >
+    <ImagePlaceholder slot="aside" label={customizacion.heroPlaceholder} ratio="16 / 10" />
+    <MetaStrip slot="strip" items={customizacion.meta} />
+  </PageHero>
+
+  {/* 01 — Diagnóstico */}
+  <Section hairline space="sm" ariaLabelledby="diagnostico">
+    <span class="eyebrow">01 — Empieza con un diagnóstico</span>
+    <div class="grid-auto" style="--min: 300px; --gap: clamp(28px, 4vw, 56px); --align: start">
+      <h2 class="section-title" id="diagnostico">{customizacion.diagnosisTitle}</h2>
+      <div>
+        <p class="prose diagnosis__text">{customizacion.diagnosisText}</p>
+        <ul class="grid-auto" style="--min: 150px; --gap: 14px">
+          {
+            customizacion.diagnosis.map((item) => (
+              <li class="card diagnosis-card">
+                <span class="diagnosis-card__title">{item.title}</span>
+                <span class="diagnosis-card__text">{item.text}</span>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </div>
+  </Section>
+
+  {/* 02 — Trabajos típicos */}
+  <Section tone="cream" hairline ariaLabelledby="trabajos">
+    <span class="eyebrow">02 — Trabajos típicos</span>
+    <h2 class="section-title block-title" id="trabajos">{customizacion.jobsTitle}</h2>
+    <ul class="grid-auto" style="--min: 250px">
+      {
+        customizacion.jobs.map((job, index) => (
+          <li class="card job-card">
+            <span class="job-card__index" aria-hidden="true">
+              {String(index + 1).padStart(2, '0')}
+            </span>
+            <h3 class="card-title" style="--fs: 18px">
+              {job.title}
+            </h3>
+            <p class="note">{job.text}</p>
+          </li>
+        ))
+      }
+    </ul>
+  </Section>
+
+  {/* 03 — Cómo intervenimos */}
+  <Section hairline ariaLabelledby="metodo">
+    <span class="eyebrow">03 — Cómo intervenimos</span>
+    <div class="grid-auto" style="--min: 300px; --gap: clamp(28px, 4vw, 64px); --align: start">
+      <h2 class="section-title" id="metodo" style="max-width: 18ch">{customizacion.methodTitle}</h2>
+      <ol class="numbered-list">
+        {
+          customizacion.method.map((step, index) => (
+            <li class="numbered-list__item">
+              <span class="numbered-list__index">{String(index + 1).padStart(2, '0')}</span>
+              <div>
+                <span class="numbered-list__title">{step.title}</span>
+                <span class="numbered-list__text">{step.text}</span>
+              </div>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </Section>
+
+  <CtaSection
+    title={customizacion.cta.title}
+    text={customizacion.cta.text}
+    primary={{
+      label: `WhatsApp ${CONTACT.phoneDisplay}`,
+      href: WHATSAPP.shopify,
+      icon: 'whatsapp',
+      external: true,
+    }}
+    secondary={customizacion.cta.secondary}
+  />
+</BaseLayout>
+
+<style>
+  .block-title {
+    margin-bottom: clamp(28px, 4vw, 44px);
+    max-width: 24ch;
+  }
+
+  .diagnosis__text {
+    margin-bottom: 22px;
+    max-width: 52ch;
+  }
+
+  .diagnosis-card {
+    --gap: 6px;
+    --pad: 16px 18px;
+    box-shadow: none;
+  }
+
+  .diagnosis-card__title {
+    font-family: var(--font-display);
+    font-weight: var(--fw-extrabold);
+    font-size: 15px;
+    color: var(--brand-primary);
+  }
+
+  .diagnosis-card__text {
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--text-soft);
+  }
+
+  .job-card {
+    --gap: 8px;
+    --pad: clamp(24px, 3vw, 32px);
+    height: 100%;
+  }
+
+  .job-card__index {
+    margin-bottom: 6px;
+    font-family: var(--font-display);
+    font-weight: var(--fw-black);
+    font-size: 12.5px;
+    letter-spacing: 0.08em;
+    color: var(--brand-secondary);
+  }
+</style>

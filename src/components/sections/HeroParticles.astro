@@ -1,0 +1,312 @@
+---
+import { SITE } from '@/config/site';
+
+/**
+ * Portada: la constelación de puntos, igualada al banner que hoy está en
+ * producción (https://web.standfields.com/#/home).
+ *
+ * Aquel banner usa tsParticles; aquí se reproduce el mismo resultado con canvas
+ * plano para no añadir una dependencia de ~40 kB. Los valores de PARTICLES
+ * salen de la configuración real de esa página, verificada además midiendo los
+ * píxeles del canvas en vivo: densidad, color, radios, distancia de enlace y
+ * velocidad coinciden.
+ *
+ * El lienzo es decorativo (`aria-hidden`), va detrás del titular y no transporta
+ * información: si el script no llega, la portada se ve igual sin el fondo.
+ */
+---
+
+<section class="hero" aria-labelledby="hero-titulo">
+  <canvas class="hero__canvas" aria-hidden="true" data-hero-canvas></canvas>
+  <div class="hero__content">
+    <div class="hero__box">
+      <h1 class="hero__title" id="hero-titulo">STANDFIELDS</h1>
+      <p class="hero__tagline">{SITE.tagline}</p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: clamp(440px, 72vh, 760px);
+    background: var(--white);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .hero__canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .hero__content {
+    position: relative;
+    /* Sin min-width:0 el ítem flex no baja del ancho intrínseco de la palabra
+       STANDFIELDS y saca scroll horizontal en pantallas estrechas. */
+    min-width: 0;
+    max-width: 100%;
+    padding: clamp(60px, 9vw, 120px) clamp(20px, 5vw, 48px);
+    text-align: center;
+  }
+
+  /* Recuadro translúcido bajo el titular, como el del banner en producción
+     (`rgba(255,255,255,.9)`, sin redondeo). Sobre el campo de partículas
+     apenas se nota, pero despega el texto lo justo para que se lea limpio.
+     El relleno es mayor que los 15 px del original porque aquí la tipografía
+     es mucho más grande y con 15 px el texto quedaría pegado al borde. */
+  .hero__box {
+    display: inline-block;
+    padding: clamp(18px, 2.2vw, 30px) clamp(22px, 3.4vw, 48px);
+    background: rgb(255 255 255 / 0.9);
+  }
+
+  .hero__title {
+    font-weight: var(--fw-black);
+    /* El mínimo baja de 46px a 40px: por debajo de 460px de ancho la palabra
+       no cabía y desbordaba la página. */
+    font-size: clamp(40px, 10vw, 118px);
+    line-height: 0.94;
+    letter-spacing: 0.01em;
+    color: var(--brand-primary);
+  }
+
+  .hero__tagline {
+    margin-top: clamp(14px, 2vw, 22px);
+    font-family: var(--font-display);
+    font-weight: var(--fw-bold);
+    font-size: clamp(14px, 2.2vw, 22px);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--brand-primary);
+  }
+</style>
+
+<script>
+  /**
+   * Parámetros tomados del banner en producción (tsParticles).
+   *
+   * `AREA_PER_PARTICLE` traduce su regla de densidad — 350 partículas por cada
+   * 800 unidades de área, siendo una unidad 1.000 px² — a un número directo de
+   * píxeles cuadrados por partícula, para que la densidad no dependa del tamaño
+   * de la ventana.
+   */
+  const PARTICLES = {
+    /** #112D69, el azul del banner actual. */
+    ink: '17, 45, 105',
+    areaPerParticle: 2286,
+    /** Tope para pantallas muy grandes; a 1440×760 salen ~480. */
+    maxCount: 900,
+    dotOpacity: 0.8,
+    /* tsParticles traduce `size: { value: 5, random: true }` a un radio entre
+       1 y 5; la mediana de diámetro medida en producción (6 px) lo confirma. */
+    maxRadius: 5,
+    minRadius: 1,
+    linkDistance: 30,
+    linkOpacity: 0.5,
+    linkWidth: 1,
+    /** Píxeles por segundo. Todas se mueven igual de rápido, en direcciones distintas. */
+    speed: 31,
+  } as const;
+
+  interface Particle {
+    x: number;
+    y: number;
+    /** Vector unitario de dirección; el módulo lo pone `speed`. */
+    dx: number;
+    dy: number;
+    r: number;
+  }
+
+  const canvas = document.querySelector<HTMLCanvasElement>('[data-hero-canvas]');
+  const ctx = canvas?.getContext('2d');
+
+  if (canvas && ctx) {
+    const LINK_DISTANCE_SQ = PARTICLES.linkDistance * PARTICLES.linkDistance;
+
+    let width = 0;
+    let height = 0;
+    let particles: Particle[] = [];
+    let frame: number | null = null;
+    let lastTime = 0;
+
+    /**
+     * Rejilla de casillas del tamaño de la distancia de enlace. Buscar vecinos
+     * en las casillas contiguas evita comparar cada partícula con todas las
+     * demás: con ~480 partículas eso serían 115.000 distancias por fotograma,
+     * frente a unas 2.000 así.
+     */
+    let cols = 0;
+    let rows = 0;
+    let buckets: number[][] = [];
+
+    const build = () => {
+      const rect = canvas.getBoundingClientRect();
+      if (!rect.width || !rect.height) return;
+
+      // Se limita a 2 para no multiplicar el coste de pintado en pantallas 3x.
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      width = rect.width;
+      height = rect.height;
+      canvas.width = Math.round(width * dpr);
+      canvas.height = Math.round(height * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      const count = Math.min(
+        PARTICLES.maxCount,
+        Math.round((width * height) / PARTICLES.areaPerParticle),
+      );
+
+      particles = Array.from({ length: count }, () => {
+        const angle = Math.random() * Math.PI * 2;
+        return {
+          x: Math.random() * width,
+          y: Math.random() * height,
+          dx: Math.cos(angle),
+          dy: Math.sin(angle),
+          r:
+            PARTICLES.minRadius +
+            Math.random() * (PARTICLES.maxRadius - PARTICLES.minRadius),
+        };
+      });
+
+      cols = Math.max(1, Math.ceil(width / PARTICLES.linkDistance));
+      rows = Math.max(1, Math.ceil(height / PARTICLES.linkDistance));
+      buckets = Array.from({ length: cols * rows }, () => []);
+    };
+
+    const draw = () => {
+      ctx.clearRect(0, 0, width, height);
+
+      for (const bucket of buckets) bucket.length = 0;
+      for (let i = 0; i < particles.length; i += 1) {
+        const p = particles[i]!;
+        const cx = Math.min(cols - 1, Math.max(0, (p.x / PARTICLES.linkDistance) | 0));
+        const cy = Math.min(rows - 1, Math.max(0, (p.y / PARTICLES.linkDistance) | 0));
+        buckets[cy * cols + cx]!.push(i);
+      }
+
+      // Enlaces. Se recorre media vecindad (derecha y fila inferior) para que
+      // cada pareja se evalúe una sola vez.
+      ctx.lineWidth = PARTICLES.linkWidth;
+      const NEIGHBOURS = [
+        [1, 0],
+        [-1, 1],
+        [0, 1],
+        [1, 1],
+      ] as const;
+
+      for (let cy = 0; cy < rows; cy += 1) {
+        for (let cx = 0; cx < cols; cx += 1) {
+          const cell = buckets[cy * cols + cx]!;
+          if (!cell.length) continue;
+
+          const connect = (i: number, j: number) => {
+            const a = particles[i]!;
+            const b = particles[j]!;
+            const dx = a.x - b.x;
+            const dy = a.y - b.y;
+            const distanceSq = dx * dx + dy * dy;
+            if (distanceSq >= LINK_DISTANCE_SQ) return;
+
+            // La línea se desvanece con la distancia, como en tsParticles.
+            const fade = 1 - Math.sqrt(distanceSq) / PARTICLES.linkDistance;
+            ctx.strokeStyle = `rgba(${PARTICLES.ink},${(fade * PARTICLES.linkOpacity).toFixed(3)})`;
+            ctx.beginPath();
+            ctx.moveTo(a.x, a.y);
+            ctx.lineTo(b.x, b.y);
+            ctx.stroke();
+          };
+
+          for (let m = 0; m < cell.length; m += 1) {
+            for (let n = m + 1; n < cell.length; n += 1) connect(cell[m]!, cell[n]!);
+          }
+
+          for (const [ox, oy] of NEIGHBOURS) {
+            const nx = cx + ox;
+            const ny = cy + oy;
+            if (nx < 0 || ny < 0 || nx >= cols || ny >= rows) continue;
+            const other = buckets[ny * cols + nx]!;
+            for (const i of cell) for (const j of other) connect(i, j);
+          }
+        }
+      }
+
+      ctx.fillStyle = `rgba(${PARTICLES.ink},${PARTICLES.dotOpacity})`;
+      for (const p of particles) {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    };
+
+    const tick = (now: number) => {
+      // En segundos y acotado: al volver de otra pestaña el salto sería enorme.
+      const delta = Math.min((now - lastTime) / 1000, 0.05);
+      lastTime = now;
+
+      for (const p of particles) {
+        p.x += p.dx * PARTICLES.speed * delta;
+        p.y += p.dy * PARTICLES.speed * delta;
+
+        // Reaparecen por el lado opuesto para que el campo no se vacíe.
+        const margin = p.r + 2;
+        if (p.x < -margin) p.x = width + margin;
+        else if (p.x > width + margin) p.x = -margin;
+        if (p.y < -margin) p.y = height + margin;
+        else if (p.y > height + margin) p.y = -margin;
+      }
+
+      draw();
+      frame = requestAnimationFrame(tick);
+    };
+
+    const stop = () => {
+      if (frame !== null) cancelAnimationFrame(frame);
+      frame = null;
+    };
+
+    const start = () => {
+      if (frame === null) {
+        lastTime = performance.now();
+        frame = requestAnimationFrame(tick);
+      }
+    };
+
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+    build();
+    draw();
+
+    if (!reducedMotion.matches) {
+      // Sólo se anima mientras la portada está a la vista.
+      new IntersectionObserver(([entry]) => (entry?.isIntersecting ? start() : stop()), {
+        threshold: 0,
+      }).observe(canvas);
+    }
+
+    reducedMotion.addEventListener('change', (event) => {
+      if (event.matches) {
+        stop();
+        draw();
+      } else {
+        start();
+      }
+    });
+
+    new ResizeObserver(() => {
+      build();
+      draw();
+    }).observe(canvas);
+
+    // Pestaña en segundo plano: nada que animar.
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) stop();
+      else if (!reducedMotion.matches) start();
+    });
+  }
+</script>

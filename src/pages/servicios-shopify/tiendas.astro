@@ -1,0 +1,256 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import Section from '@/components/ui/Section.astro';
+import Icon from '@/components/ui/Icon.astro';
+import ImagePlaceholder from '@/components/ui/ImagePlaceholder.astro';
+import PageHero from '@/components/sections/PageHero.astro';
+import MetaStrip from '@/components/sections/MetaStrip.astro';
+import CtaSection from '@/components/sections/CtaSection.astro';
+import { ROUTES } from '@/config/routes';
+import { CONTACT, WHATSAPP } from '@/config/site';
+import { breadcrumbSchema, serviceSchema } from '@/lib/structured-data';
+import { tiendas } from '@/data/shopify';
+
+const crumbs = [
+  { label: 'Servicios Shopify', href: ROUTES.serviciosShopify },
+  { label: 'Tiendas desde cero' },
+];
+const path = ROUTES.shopifyTiendas;
+const description =
+  'Lanzamos tu tienda Shopify desde cero: arquitectura de catálogo, tema propio, pagos ' +
+  'locales, envíos y capacitación. Desde S/ 4,500 en 4 a 8 semanas.';
+---
+
+<BaseLayout
+  active="shopify"
+  path={path}
+  title="Tiendas Shopify desde cero"
+  description={description}
+  structuredData={[
+    breadcrumbSchema(crumbs, path),
+    serviceSchema({
+      name: 'Tiendas Shopify desde cero',
+      description,
+      path,
+      priceFrom: tiendas.priceFrom,
+    }),
+  ]}
+>
+  <PageHero
+    crumbs={crumbs}
+    eyebrow={tiendas.eyebrow}
+    title={tiendas.title}
+    lead={tiendas.lead}
+    titleMeasure="15ch"
+    layout="aside"
+    actions={[
+      {
+        label: tiendas.heroActions.primary,
+        href: WHATSAPP.shopify,
+        icon: 'whatsapp',
+        external: true,
+      },
+      tiendas.heroActions.secondary,
+    ]}
+  >
+    <ImagePlaceholder slot="aside" label={tiendas.heroPlaceholder} ratio="4 / 3" />
+    <MetaStrip slot="strip" items={tiendas.meta} />
+  </PageHero>
+
+  {/* 01 — Qué incluye */}
+  <Section hairline space="sm" ariaLabelledby="alcance">
+    <span class="eyebrow">01 — Qué incluye</span>
+    <h2 class="section-title block-title" id="alcance">{tiendas.scopeTitle}</h2>
+    <ul class="scope">
+      {
+        tiendas.scope.map((item) => (
+          <li class="scope__item">
+            <Icon name="check" size={18} />
+            <div>
+              <span class="scope__title">{item.title}</span>
+              <span class="scope__text">{item.text}</span>
+            </div>
+          </li>
+        ))
+      }
+    </ul>
+  </Section>
+
+  {/* 02 — El proceso */}
+  <Section tone="cream" hairline ariaLabelledby="proceso">
+    <span class="eyebrow">02 — El proceso</span>
+    <h2 class="section-title block-title" id="proceso">{tiendas.processTitle}</h2>
+    <ol class="grid-auto" style="--min: 190px">
+      {
+        tiendas.process.map((phase) => (
+          <li class="card card--cream step-card">
+            <span class="step-card__step">{phase.step}</span>
+            <h3 class="card-title" style="--fs: 18px">
+              {phase.title}
+            </h3>
+            <p class="note">{phase.text}</p>
+          </li>
+        ))
+      }
+    </ol>
+  </Section>
+
+  {/* 03 — Para quién es */}
+  <Section hairline space="sm" ariaLabel="Para quién es este servicio">
+    <span class="eyebrow">03 — Para quién es</span>
+    <div class="grid-auto" style="--min: 300px">
+      <div class="card fit-card">
+        <h2 class="card-title" style="--fs: 20px">{tiendas.fitTitle}</h2>
+        <ul class="fit-list">
+          {
+            tiendas.fit.map((item) => (
+              <li>
+                <Icon name="check" size={17} class="fit-list__yes" />
+                <span>{item}</span>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+
+      <div class="card card--cream card--flat fit-card">
+        <h2 class="card-title" style="--fs: 20px">{tiendas.notFitTitle}</h2>
+        <ul class="fit-list">
+          {
+            tiendas.notFit.map((item) => (
+              <li>
+                <Icon name="close" size={17} strokeWidth={2} class="fit-list__no" />
+                <span>
+                  {item.text}
+                  {item.linkLabel && <a href={item.href}>{item.linkLabel}</a>}
+                  {item.after}
+                </span>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </div>
+  </Section>
+
+  <CtaSection
+    title={tiendas.cta.title}
+    text={tiendas.cta.text}
+    primary={{
+      label: `WhatsApp ${CONTACT.phoneDisplay}`,
+      href: WHATSAPP.shopify,
+      icon: 'whatsapp',
+      external: true,
+    }}
+    secondary={tiendas.cta.secondary}
+  />
+</BaseLayout>
+
+<style>
+  .block-title {
+    margin-bottom: clamp(28px, 4vw, 44px);
+    max-width: 24ch;
+  }
+
+  /* Alcance: dos columnas de filas con filete, como en el diseño. */
+  .scope {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
+    column-gap: clamp(28px, 4vw, 64px);
+  }
+
+  .scope__item {
+    display: flex;
+    gap: 14px;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  /* Filete superior sólo en la primera fila de cada columna. */
+  .scope__item:nth-child(-n + 2) {
+    border-top: 1px solid var(--border-subtle);
+  }
+
+  @media (max-width: 660px) {
+    .scope__item:nth-child(2) {
+      border-top: 0;
+    }
+  }
+
+  .scope__item :global(svg) {
+    flex-shrink: 0;
+    margin-top: 2px;
+    color: var(--brand-secondary);
+  }
+
+  .scope__title {
+    display: block;
+    font-family: var(--font-display);
+    font-weight: var(--fw-extrabold);
+    font-size: 16px;
+    color: var(--brand-primary);
+  }
+
+  .scope__text {
+    font-size: 14.5px;
+    line-height: 1.6;
+    color: var(--text-soft);
+  }
+
+  .step-card {
+    --gap: 8px;
+    --pad: clamp(22px, 3vw, 30px);
+  }
+
+  .step-card__step {
+    margin-bottom: 6px;
+    font-family: var(--font-display);
+    font-weight: var(--fw-black);
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--brand-secondary);
+  }
+
+  .fit-card {
+    --gap: 18px;
+    --pad: clamp(26px, 3vw, 38px);
+  }
+
+  .fit-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    font-size: 14.5px;
+    line-height: 1.6;
+  }
+
+  .fit-list li {
+    display: flex;
+    gap: 12px;
+  }
+
+  .fit-list :global(svg) {
+    flex-shrink: 0;
+    margin-top: 3px;
+  }
+
+  .fit-list :global(.fit-list__yes) {
+    color: var(--status-success);
+  }
+
+  .fit-list :global(.fit-list__no) {
+    color: var(--text-muted);
+  }
+
+  .fit-list a {
+    color: var(--text-link);
+    font-weight: var(--fw-bold);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .fit-list a:hover {
+    color: var(--text-link-hover);
+  }
+</style>

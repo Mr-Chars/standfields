@@ -1,0 +1,249 @@
+---
+import { Image } from 'astro:assets';
+import logoMarkLight from '@/assets/logo-mark-light.png';
+import Icon from '@/components/ui/Icon.astro';
+import { FOOTER_NAV, FOOTER_SOCIAL, LEGAL_LINKS } from '@/data/navigation';
+import { ROUTES } from '@/config/routes';
+import { CONTACT, MAILTO_LINK, SITE, TEL_LINK } from '@/config/site';
+
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer on-dark">
+  <div class="container">
+    <div class="site-footer__grid">
+      <div class="site-footer__brand">
+        <div class="brand">
+          <Image src={logoMarkLight} alt="" width={44} height={49} densities={[1, 2]} loading="lazy" />
+          <span class="brand__name">STANDFIELDS</span>
+        </div>
+        <p class="site-footer__blurb">
+          {SITE.tagline}. Software de gestión para talleres mecánicos y desarrollo
+          especializado en Shopify.
+        </p>
+        <ul class="site-footer__social">
+          {
+            FOOTER_SOCIAL.map((item) => (
+              <li>
+                <a
+                  href={item.href}
+                  {...item.external ? { target: '_blank', rel: 'noopener noreferrer' } : {}}
+                >
+                  <Icon name={item.icon} size={18} strokeWidth={2} title={item.label} />
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+
+      {
+        FOOTER_NAV.map((column) => (
+          <nav class="site-footer__column" aria-labelledby={`pie-${column.title.toLowerCase()}`}>
+            <h2 class="site-footer__heading" id={`pie-${column.title.toLowerCase()}`}>
+              {column.title}
+            </h2>
+            <ul>
+              {column.links.map((link) => (
+                <li>
+                  <a href={link.href}>{link.label}</a>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        ))
+      }
+
+      <div class="site-footer__column">
+        <h2 class="site-footer__heading">Contacto</h2>
+        <ul>
+          <li>
+            <a class="site-footer__phone" href={TEL_LINK}>{CONTACT.phoneDisplay}</a>
+          </li>
+          <li>
+            <a href={MAILTO_LINK}>{CONTACT.email}</a>
+          </li>
+          <li>
+            <p class="site-footer__hours">
+              {
+                CONTACT.hours.map((slot, index) => (
+                  <>
+                    {index > 0 && <br />}
+                    {slot.days}, {slot.time}
+                  </>
+                ))
+              }
+            </p>
+          </li>
+          <li><a href={ROUTES.nosotros}>Sobre Standfields</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <hr />
+
+    <div class="site-footer__legal">
+      <small>© {year} {SITE.name}. Todos los derechos reservados.</small>
+      <ul>
+        {
+          LEGAL_LINKS.map((link) => (
+            <li>
+              <a href={link.href}>{link.label}</a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    padding-top: clamp(48px, 6vw, 80px);
+    font-family: var(--font-display);
+  }
+
+  .site-footer__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
+    gap: clamp(32px, 4vw, 56px);
+    align-items: start;
+  }
+
+  .site-footer__brand {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    max-width: 340px;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .brand img {
+    width: 44px;
+    height: auto;
+  }
+
+  .brand__name {
+    font-weight: var(--fw-black);
+    font-size: 20px;
+    letter-spacing: var(--ls-wordmark);
+  }
+
+  .site-footer__blurb {
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--text-on-dark-soft);
+  }
+
+  .site-footer__social {
+    display: flex;
+    gap: 8px;
+  }
+
+  .site-footer__social a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--tap-target);
+    height: var(--tap-target);
+    border: 1px solid var(--border-inverse-strong);
+    border-radius: var(--radius-md);
+    color: var(--white);
+  }
+
+  .site-footer__social a:hover {
+    background: var(--navy-700);
+    border-color: var(--brand-secondary);
+  }
+
+  .site-footer__column {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .site-footer__heading {
+    font-family: var(--font-sans);
+    font-size: 12px;
+    font-weight: var(--fw-extrabold);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-on-dark-muted);
+  }
+
+  .site-footer__column ul {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .site-footer__column a {
+    font-family: var(--font-sans);
+    font-size: 14.5px;
+    color: var(--text-on-dark-soft);
+  }
+
+  .site-footer__column a:hover {
+    color: var(--white);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .site-footer__column .site-footer__phone {
+    font-family: var(--font-display);
+    font-weight: var(--fw-extrabold);
+    font-size: 19px;
+    color: var(--white);
+  }
+
+  .site-footer__column .site-footer__phone:hover {
+    color: var(--navy-200);
+  }
+
+  .site-footer__hours {
+    font-family: var(--font-sans);
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--text-on-dark-muted);
+  }
+
+  hr {
+    height: 2px;
+    margin: clamp(40px, 5vw, 64px) 0 0;
+    border: 0;
+    background: rgb(255 255 255 / 0.28);
+  }
+
+  .site-footer__legal {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px 32px;
+    justify-content: space-between;
+    padding: 22px 0 28px;
+  }
+
+  .site-footer__legal ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+  }
+
+  .site-footer__legal small,
+  .site-footer__legal a {
+    font-family: var(--font-sans);
+    font-size: 12.5px;
+    color: var(--text-on-dark-muted);
+  }
+
+  .site-footer__legal a:hover {
+    color: var(--white);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+</style>
