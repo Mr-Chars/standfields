@@ -33,7 +33,7 @@ export const saasCard = {
   title: 'Naix, software integral para talleres mecánicos',
   text:
     'Naix reúne toda la operación del taller en un solo lugar: recepción del vehículo, orden de ' +
-    'servicio, avance del trabajo, historial del cliente y facturación.',
+    'servicio, avance del trabajo, historial del cliente y cobranza.',
   features: [
     'Órdenes de servicio con estados y tiempos',
     'Control de clientes y su historial completo',

@@ -19,7 +19,7 @@ export const views = [
     title: 'Naix, software para talleres mecánicos',
     text:
       'Cuatro planes por suscripción, desde una versión gratuita hasta la cadena con ' +
-      'varias sedes. Órdenes de servicio, clientes, vehículos y facturación.',
+      'varias sedes. Órdenes de servicio, clientes, vehículos y cobranza.',
     cta: 'Ver los cuatro planes',
   },
   {
