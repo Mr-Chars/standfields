@@ -11,7 +11,9 @@ import { ROUTES } from '@/config/routes';
 export const heroStats = [
   { value: '+40', label: 'Proyectos entregados' },
   { value: '8', label: 'Años construyendo software' },
-  { value: '72h', label: 'Puesta en marcha de Naix' },
+  // Era «72h» contando la migración de datos, cuyo plazo depende del volumen: se
+  // promete solo lo que no depende de él. Mismo dato que en «Nosotros».
+  { value: '1 día', label: 'Para tener Naix operativo' },
   { value: 'Perú', label: 'Y toda Latinoamérica' },
 ];
 

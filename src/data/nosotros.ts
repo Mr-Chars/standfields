@@ -68,7 +68,8 @@ export const numbers = [
   { value: '8', label: 'Años en el mercado' },
   // Antes era «[n] Talleres usando Naix» y el marcador salió publicado. Mientras
   // no haya una cifra de talleres que se pueda sostener, va el dato de puesta en
-  // marcha, que es el mismo que promete la portada.
-  { value: '72 h', label: 'Puesta en marcha de Naix' },
+  // marcha, el mismo que la portada. Era «72 h» contando la migración; su plazo
+  // depende del volumen de datos, así que solo se promete lo que no depende de él.
+  { value: '1 día', label: 'Para tener Naix operativo' },
   { value: '100%', label: 'Proyectos con código entregado' },
 ];

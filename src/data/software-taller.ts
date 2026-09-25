@@ -264,8 +264,9 @@ export const faq: FaqItem[] = [
   {
     question: '¿Cuánto demora la implementación?',
     answer:
-      'La cuenta de Naix queda operativa el mismo día. Con migración de datos y capacitación al ' +
-      'equipo, entre 48 y 72 horas.',
+      'La cuenta de Naix queda operativa el mismo día y la capacitación al equipo toma una ' +
+      'hora. El plazo de la migración depende del volumen de tus datos: te lo confirmamos ' +
+      'al revisarlos.',
   },
   {
     question: '¿Mis mecánicos van a poder usarlo?',
