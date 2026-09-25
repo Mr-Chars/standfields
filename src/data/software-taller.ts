@@ -11,10 +11,14 @@ export const hero = {
     'Órdenes de servicio, control de clientes y base de datos de vehículos en una sola ' +
     'plataforma. Se usa desde el mostrador, el taller y el celular.',
   footnote: 'Sin tarjeta de crédito. Migramos tus datos actuales sin costo.',
-  panelCaption: 'Vista del tablero',
+  // La captura es de un taller en plan Pro, sin las metas ni la lista de «Qué
+  // conviene atender»: esas son `module-insights`, que solo trae Multitaller, y
+  // enseñarlas aquí prometía a quien prueba Pro algo que no va a ver.
+  panelCaption: 'Tablero de dirección · plan Pro',
   panelAlt:
-    'Tablero de Naix: cobranza vencida, meta de cobro del mes, vehículos en el taller y ' +
-    'la lista de asuntos que conviene atender primero.',
+    'Resumen del taller en Naix, plan Pro: cobranza vencida, lo cobrado en el mes, ' +
+    'vehículos en el taller, tiempo de ciclo, entregas a tiempo, ticket promedio y ' +
+    'facturado frente a cobrado.',
 };
 
 export const problems = [
@@ -44,8 +48,8 @@ export const modules: { icon: IconName; title: string; text: string; plan?: stri
     icon: 'user-plus',
     title: 'Control de clientes',
     text:
-      'Ficha única con datos de contacto, vehículos asociados, visitas anteriores, ' +
-      'trabajos realizados y saldo pendiente.',
+      'Ficha única con datos de contacto, vehículos asociados, historial de órdenes, ' +
+      'servicios realizados y lo que ha gastado en el taller.',
   },
   {
     icon: 'car',
@@ -74,7 +78,8 @@ export const modules: { icon: IconName; title: string; text: string; plan?: stri
     title: 'Cotizaciones y comprobantes',
     text:
       'Cotización dentro de la orden, con IGV incluido, sin IGV o + IGV, y comprobante ' +
-      'en PDF con los datos del taller, su serie y su correlativo.',
+      'en PDF con los datos del taller y su propia numeración. Es un comprobante interno ' +
+      'para tu cliente: no reemplaza la boleta ni la factura electrónica de SUNAT.',
     plan: 'Planes Taller y Pro',
   },
 ];
@@ -82,7 +87,7 @@ export const modules: { icon: IconName; title: string; text: string; plan?: stri
 /** Aclaración al pie de la rejilla de módulos. */
 export const modulesNote =
   'Los módulos con etiqueta de plan están disponibles en ese plan en adelante. ' +
-  'El resto viene en los tres, incluido el gratuito.';
+  'El resto viene en todos los planes, incluido el gratuito.';
 
 /**
  * Los tres momentos del taller, cada uno con su captura del producto.
@@ -132,13 +137,15 @@ export const features = [
     eyebrow: 'Cliente',
     title: 'Lo que se le cobra al cliente queda documentado',
     text:
-      'Cada orden emite su comprobante en PDF con los datos del taller, el detalle de ' +
-      'servicios, lo pagado y el saldo. La ficha del cliente guarda sus visitas, y desde ' +
-      'ahí se le llama o se le escribe por WhatsApp.',
+      'Desde el plan Taller, cada orden emite su comprobante en PDF con los datos del ' +
+      'taller, el detalle de servicios, lo pagado y el saldo. Es un comprobante interno ' +
+      'para tu cliente: no reemplaza la boleta ni la factura electrónica de SUNAT. La ' +
+      'ficha del cliente guarda sus visitas, y desde ahí se le llama o se le escribe por ' +
+      'WhatsApp.',
     bullets: [
-      'Comprobante en PDF con serie y correlativo propios',
+      'Comprobante interno en PDF, con numeración propia del taller',
       'Historial de visitas y trabajos por vehículo',
-      'Saldo pendiente y cuentas por cobrar al día',
+      'Saldo pendiente de cada orden; las cuentas por cobrar del taller, en el plan Pro',
     ],
     placeholder: 'Comprobante de servicio en PDF',
     alt:

@@ -312,9 +312,10 @@ const planHref = (tier: string): string =>
     background: var(--navy-200);
   }
 
-  /* La captura es más alta que el hueco del diseño (16/11): se ancla arriba y
-     se recorta por abajo, de modo que siempre se vea la cabecera del tablero
-     con los importes y la lista de pendientes, que es lo que vende la vista. */
+  /* La captura se saca a 1920×1320, la misma proporción del hueco (16/11). Si
+     una futura es más alta, se ancla arriba y se recorta por abajo, de modo que
+     siempre se vea la cabecera del tablero con los importes. Tiene que ser de un
+     taller en plan Pro: las metas y «Qué conviene atender» son de Multitaller. */
   .panel :global(.panel__shot) {
     display: block;
     width: 100%;

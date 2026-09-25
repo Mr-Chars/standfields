@@ -66,13 +66,14 @@ export const CASES: CaseStudy[] = [
     title: 'Naix, software para talleres mecánicos',
     text:
       'Nuestro producto propio, en operación en talleres de Lima. Órdenes de servicio, ' +
-      'control de clientes, base de datos de vehículos y el tablero que dice qué ' +
-      'conviene atender primero.',
+      'control de clientes, base de datos de vehículos y un tablero con lo cobrado, lo ' +
+      'vencido y la carga de cada técnico.',
     placeholder: 'Captura de Naix',
     imageKey: 'naix',
     imageAlt:
-      'Tablero de Naix con la cobranza vencida, la meta de cobro del mes, los vehículos ' +
-      'en el taller y la lista de asuntos ordenada por el importe en juego.',
+      'Resumen del taller en Naix, plan Pro: cobranza vencida, lo cobrado en el mes, ' +
+      'vehículos en el taller, tiempo de ciclo, entregas a tiempo, ticket promedio y ' +
+      'facturado frente a cobrado.',
     link: { label: 'Ver el producto', href: ROUTES.softwareTaller },
     featured: true,
   },
