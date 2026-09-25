@@ -34,6 +34,17 @@ export default defineConfig({
      * van en las cabeceras HTTP de `public/_headers`.
      */
     csp: {
+      /**
+       * Cloudflare Pages inyecta en el borde el beacon de Web Analytics
+       * (`static.cloudflareinsights.com/beacon.min.js`). Sin este origen, la CSP
+       * lo bloqueaba y las visitas no se registraban. Es el único script de otro
+       * dominio, y no usa cookies. Declarar `resources` sustituye los orígenes por
+       * defecto de Astro, así que `'self'` hay que repetirlo. El envío de los
+       * datos (`connect-src`) se autoriza en `public/_headers`.
+       */
+      scriptDirective: {
+        resources: ["'self'", 'https://static.cloudflareinsights.com'],
+      },
       styleDirective: {
         resources: [{ resource: "'unsafe-inline'", kind: 'attribute' }],
       },

@@ -182,8 +182,11 @@ propio componente documenta cómo cambiarlo por `<Image>` de `astro:assets`.
 
 ### Seguridad
 
-- Sin dependencias de terceros en tiempo de ejecución: el sitio no carga ningún
-  script, fuente ni imagen de otro dominio.
+- Sin dependencias de terceros en tiempo de ejecución, salvo una: el beacon de
+  Cloudflare Web Analytics, que Cloudflare Pages inyecta en el borde y que no usa
+  cookies. La CSP autoriza su script (`astro.config.mjs`) y su envío
+  (`connect-src` en `public/_headers`); sin eso, el navegador lo bloqueaba y
+  las visitas no se registraban. Ninguna fuente ni imagen viene de otro dominio.
 - **CSP en dos capas.** Astro emite en cada página un `<meta>` con el hash de
   cada script y estilo propios, de modo que `script-src` no necesita
   `unsafe-inline`; `public/_headers` añade el resto de directivas (marco,

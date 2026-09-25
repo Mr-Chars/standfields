@@ -9,7 +9,9 @@
   # políticas se aplican a la vez y el navegador exige pasar las dos.
   # Deliberadamente no se declara `default-src`: haría de respaldo para
   # `script-src` y bloquearía los scripts que el <meta> sí autoriza.
-  Content-Security-Policy: base-uri 'self'; object-src 'none'; frame-ancestors 'none'; frame-src 'none'; worker-src 'none'; media-src 'none'; manifest-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self'; form-action 'self' https://wa.me; upgrade-insecure-requests
+  # `connect-src` admite `cloudflareinsights.com`, adonde el beacon de Web
+  # Analytics (autorizado en `astro.config.mjs`) envía las visitas.
+  Content-Security-Policy: base-uri 'self'; object-src 'none'; frame-ancestors 'none'; frame-src 'none'; worker-src 'none'; media-src 'none'; manifest-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://cloudflareinsights.com; form-action 'self' https://wa.me; upgrade-insecure-requests
 
   # El sitio no se embebe en ningún iframe. `frame-ancestors` ya lo cubre en
   # navegadores modernos; esta cabecera es el respaldo para los antiguos.
