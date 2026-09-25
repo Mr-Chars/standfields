@@ -148,9 +148,12 @@ export const features = [
       'Saldo pendiente de cada orden; las cuentas por cobrar del taller, en el plan Pro',
     ],
     placeholder: 'Comprobante de servicio en PDF',
+    // Captura de una orden cotizada «+ IGV» y pagada en parte: enseña el desglose
+    // de IGV, lo pagado y el saldo. La anterior venía de una versión sin
+    // desglose y ponía el total sin IGV junto a lo pagado con IGV (Pagado > Total).
     alt:
-      'Comprobante de servicio de Naix en PDF: datos del taller, cliente y vehículo, ' +
-      'detalle de los servicios cobrados, total pagado y saldo pendiente.',
+      'Comprobante interno de Naix en PDF: datos del taller, cliente y vehículo, detalle ' +
+      'de los servicios, subtotal, IGV, total, lo pagado y el saldo pendiente.',
     reversed: false,
   },
 ];
